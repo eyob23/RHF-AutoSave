@@ -180,9 +180,12 @@ export function createEmployeeOnboardingTransport(
     {
       key: "profile",
       paths: ["profile", "address"],
-      transport: fetchTransport(demoApiPath(`/employees/${employeeId}/profile`), {
-        method: "PATCH",
-      }),
+      transport: fetchTransport(
+        demoApiPath(`/employees/${employeeId}/profile`),
+        {
+          method: "PATCH",
+        },
+      ),
       payloadStrategy: "partition",
     },
     {
@@ -199,17 +202,23 @@ export function createEmployeeOnboardingTransport(
     {
       key: "benefits",
       paths: ["benefits", "dependents", "payroll", "acknowledgements"],
-      transport: fetchTransport(demoApiPath(`/employees/${employeeId}/benefits-enrollment`), {
-        method: "PUT",
-      }),
+      transport: fetchTransport(
+        demoApiPath(`/employees/${employeeId}/benefits-enrollment`),
+        {
+          method: "PUT",
+        },
+      ),
       payloadStrategy: "partition",
     },
     {
       key: "emergencyContacts",
       paths: ["emergencyContacts"],
-      transport: fetchTransport(demoApiPath(`/employees/${employeeId}/emergency-contacts/bulk`), {
-        method: "PUT",
-      }),
+      transport: fetchTransport(
+        demoApiPath(`/employees/${employeeId}/emergency-contacts/bulk`),
+        {
+          method: "PUT",
+        },
+      ),
       payloadStrategy: "partition",
     },
   ]);
