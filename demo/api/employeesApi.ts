@@ -1,5 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { EmployeeOnboardingFormValues, EmploymentPayload } from "../../examples/employeeOnboardingModel";
+import type {
+  EmployeeOnboardingFormValues,
+  EmploymentPayload,
+} from "../../examples/employeeOnboardingModel";
 
 export interface EmployeeRecordResponse {
   employeeId: string;
@@ -46,12 +49,17 @@ export const employeesApi = createApi({
       query: () => "/employees",
       providesTags: (result) => [
         { type: "EmployeeOnboarding", id: "LIST" },
-        ...(result ?? []).map((employee) => ({ type: "EmployeeOnboarding" as const, id: employee.employeeId })),
+        ...(result ?? []).map((employee) => ({
+          type: "EmployeeOnboarding" as const,
+          id: employee.employeeId,
+        })),
       ],
     }),
     getEmployeeOnboarding: builder.query<EmployeeRecordResponse, string>({
       query: (employeeId) => `/employees/${employeeId}/onboarding`,
-      providesTags: (_result, _error, employeeId) => [{ type: "EmployeeOnboarding", id: employeeId }],
+      providesTags: (_result, _error, employeeId) => [
+        { type: "EmployeeOnboarding", id: employeeId },
+      ],
     }),
     createEmployee: builder.mutation<EmployeeSummary, CreateEmployeeRequest>({
       query: (body) => ({
@@ -62,31 +70,41 @@ export const employeesApi = createApi({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         const tempId = `temp-${Date.now()}`;
         const patch = dispatch(
-          employeesApi.util.updateQueryData("listEmployees", undefined, (draft) => {
-            draft.unshift({
-              employeeId: tempId,
-              firstName: arg.firstName,
-              lastName: arg.lastName,
-              title: arg.title,
-              department: arg.department,
-              locationCode: arg.locationCode,
-              startDate: arg.startDate,
-              updatedAt: nowIso(),
-            });
-          }),
+          employeesApi.util.updateQueryData(
+            "listEmployees",
+            undefined,
+            (draft) => {
+              draft.unshift({
+                employeeId: tempId,
+                firstName: arg.firstName,
+                lastName: arg.lastName,
+                title: arg.title,
+                department: arg.department,
+                locationCode: arg.locationCode,
+                startDate: arg.startDate,
+                updatedAt: nowIso(),
+              });
+            },
+          ),
         );
 
         try {
           const { data } = await queryFulfilled;
           dispatch(
-            employeesApi.util.updateQueryData("listEmployees", undefined, (draft) => {
-              const index = draft.findIndex((employee) => employee.employeeId === tempId);
-              if (index >= 0) {
-                draft[index] = data;
-              } else {
-                draft.unshift(data);
-              }
-            }),
+            employeesApi.util.updateQueryData(
+              "listEmployees",
+              undefined,
+              (draft) => {
+                const index = draft.findIndex(
+                  (employee) => employee.employeeId === tempId,
+                );
+                if (index >= 0) {
+                  draft[index] = data;
+                } else {
+                  draft.unshift(data);
+                }
+              },
+            ),
           );
         } catch {
           patch.undo();
@@ -94,7 +112,10 @@ export const employeesApi = createApi({
       },
       invalidatesTags: [{ type: "EmployeeOnboarding", id: "LIST" }],
     }),
-    updateEmployeeSummary: builder.mutation<EmployeeSummary, UpdateEmployeeSummaryRequest>({
+    updateEmployeeSummary: builder.mutation<
+      EmployeeSummary,
+      UpdateEmployeeSummaryRequest
+    >({
       query: ({ employeeId, ...body }) => ({
         url: `/employees/${employeeId}`,
         method: "PATCH",
@@ -102,31 +123,43 @@ export const employeesApi = createApi({
       }),
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         const patch = dispatch(
-          employeesApi.util.updateQueryData("listEmployees", undefined, (draft) => {
-            const target = draft.find((employee) => employee.employeeId === arg.employeeId);
-            if (!target) {
-              return;
-            }
+          employeesApi.util.updateQueryData(
+            "listEmployees",
+            undefined,
+            (draft) => {
+              const target = draft.find(
+                (employee) => employee.employeeId === arg.employeeId,
+              );
+              if (!target) {
+                return;
+              }
 
-            target.firstName = arg.firstName;
-            target.lastName = arg.lastName;
-            target.title = arg.title;
-            target.department = arg.department;
-            target.locationCode = arg.locationCode;
-            target.startDate = arg.startDate;
-            target.updatedAt = nowIso();
-          }),
+              target.firstName = arg.firstName;
+              target.lastName = arg.lastName;
+              target.title = arg.title;
+              target.department = arg.department;
+              target.locationCode = arg.locationCode;
+              target.startDate = arg.startDate;
+              target.updatedAt = nowIso();
+            },
+          ),
         );
 
         try {
           const { data } = await queryFulfilled;
           dispatch(
-            employeesApi.util.updateQueryData("listEmployees", undefined, (draft) => {
-              const index = draft.findIndex((employee) => employee.employeeId === data.employeeId);
-              if (index >= 0) {
-                draft[index] = data;
-              }
-            }),
+            employeesApi.util.updateQueryData(
+              "listEmployees",
+              undefined,
+              (draft) => {
+                const index = draft.findIndex(
+                  (employee) => employee.employeeId === data.employeeId,
+                );
+                if (index >= 0) {
+                  draft[index] = data;
+                }
+              },
+            ),
           );
         } catch {
           patch.undo();
@@ -144,12 +177,18 @@ export const employeesApi = createApi({
       }),
       async onQueryStarted(employeeId, { dispatch, queryFulfilled }) {
         const patch = dispatch(
-          employeesApi.util.updateQueryData("listEmployees", undefined, (draft) => {
-            const index = draft.findIndex((employee) => employee.employeeId === employeeId);
-            if (index >= 0) {
-              draft.splice(index, 1);
-            }
-          }),
+          employeesApi.util.updateQueryData(
+            "listEmployees",
+            undefined,
+            (draft) => {
+              const index = draft.findIndex(
+                (employee) => employee.employeeId === employeeId,
+              );
+              if (index >= 0) {
+                draft.splice(index, 1);
+              }
+            },
+          ),
         );
 
         try {
@@ -163,28 +202,38 @@ export const employeesApi = createApi({
         { type: "EmployeeOnboarding", id: employeeId },
       ],
     }),
-    updateEmployment: builder.mutation<{ revision: string }, { employeeId: string; payload: EmploymentPayload }>({
+    updateEmployment: builder.mutation<
+      { revision: string },
+      { employeeId: string; payload: EmploymentPayload }
+    >({
       query: ({ employeeId, payload }) => ({
         url: `/employees/${employeeId}/employment`,
         method: "PATCH",
         body: payload,
       }),
-      async onQueryStarted({ employeeId, payload }, { dispatch, queryFulfilled }) {
+      async onQueryStarted(
+        { employeeId, payload },
+        { dispatch, queryFulfilled },
+      ) {
         const patch = dispatch(
-          employeesApi.util.updateQueryData("getEmployeeOnboarding", employeeId, (draft) => {
-            draft.values.employment = {
-              title: payload.title,
-              department: payload.department,
-              managerId: payload.managerId,
-              locationCode: payload.locationCode,
-              workMode: payload.workMode,
-              salary: payload.salary,
-              bonusEligible: payload.bonusEligible,
-              notes: payload.notes,
-            };
-            draft.values.equipmentRequests = payload.equipmentRequests;
-            draft.lastUpdatedAt = nowIso();
-          }),
+          employeesApi.util.updateQueryData(
+            "getEmployeeOnboarding",
+            employeeId,
+            (draft) => {
+              draft.values.employment = {
+                title: payload.title,
+                department: payload.department,
+                managerId: payload.managerId,
+                locationCode: payload.locationCode,
+                workMode: payload.workMode,
+                salary: payload.salary,
+                bonusEligible: payload.bonusEligible,
+                notes: payload.notes,
+              };
+              draft.values.equipmentRequests = payload.equipmentRequests;
+              draft.lastUpdatedAt = nowIso();
+            },
+          ),
         );
 
         try {

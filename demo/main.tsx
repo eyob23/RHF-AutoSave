@@ -35,7 +35,8 @@ function GlobalAutosaveQueueBootstrapper(props: { children: React.ReactNode }) {
   useGlobalAutosaveQueueBootstrap([
     {
       store: bootQueueStore,
-      resolveEntityKey: (record) => resolveEntityKeyFromMergeKey(record.mergeKey),
+      resolveEntityKey: (record) =>
+        resolveEntityKeyFromMergeKey(record.mergeKey),
     },
   ]);
 

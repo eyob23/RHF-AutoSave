@@ -29,7 +29,10 @@ export function joinPath(parts: Array<string | number>): string {
   }, "");
 }
 
-export function getByPath<TValue>(source: unknown, path: string): TValue | undefined {
+export function getByPath<TValue>(
+  source: unknown,
+  path: string,
+): TValue | undefined {
   return parsePath(path).reduce<unknown>((current, key) => {
     if (current === null || current === undefined) {
       return undefined;
@@ -52,7 +55,11 @@ export function hasPath(source: unknown, path: string): boolean {
   return true;
 }
 
-export function setByPath<TValue>(source: TValue, path: string, value: unknown): TValue {
+export function setByPath<TValue>(
+  source: TValue,
+  path: string,
+  value: unknown,
+): TValue {
   const parts = parsePath(path);
   if (parts.length === 0) {
     return value as TValue;
@@ -95,7 +102,10 @@ export function deleteByPath<TValue>(source: TValue, path: string): TValue {
 
   const root = Array.isArray(source)
     ? ([...source] as unknown as Record<string | number, unknown>)
-    : ({ ...(source as Record<string, unknown>) } as Record<string | number, unknown>);
+    : ({ ...(source as Record<string, unknown>) } as Record<
+        string | number,
+        unknown
+      >);
 
   let cursor: Record<string | number, unknown> = root;
   for (let index = 0; index < parts.length - 1; index += 1) {
@@ -147,7 +157,10 @@ export function getAllPaths(source: unknown, prefix = ""): string[] {
   });
 }
 
-export function pickPaths<TValue>(source: TValue, paths: string[]): Partial<TValue> {
+export function pickPaths<TValue>(
+  source: TValue,
+  paths: string[],
+): Partial<TValue> {
   let output: Partial<TValue> = {};
   const uniquePaths = normalizePaths(paths);
   for (const path of uniquePaths) {
@@ -160,30 +173,44 @@ export function pickPaths<TValue>(source: TValue, paths: string[]): Partial<TVal
 }
 
 export function omitPaths<TValue>(source: TValue, paths: string[]): TValue {
-  return normalizePaths(paths).reduce((accumulator, path) => deleteByPath(accumulator, path), source);
+  return normalizePaths(paths).reduce(
+    (accumulator, path) => deleteByPath(accumulator, path),
+    source,
+  );
 }
 
-export function flattenObject(source: unknown, prefix = ""): Record<string, unknown> {
+export function flattenObject(
+  source: unknown,
+  prefix = "",
+): Record<string, unknown> {
   if (!isObjectLike(source) && !Array.isArray(source)) {
     return prefix ? { [prefix]: source } : {};
   }
 
   if (Array.isArray(source)) {
-    return source.reduce<Record<string, unknown>>((accumulator, value, index) => {
-      const nextPrefix = prefix ? `${prefix}[${index}]` : `[${index}]`;
-      Object.assign(accumulator, flattenObject(value, nextPrefix));
-      return accumulator;
-    }, {});
+    return source.reduce<Record<string, unknown>>(
+      (accumulator, value, index) => {
+        const nextPrefix = prefix ? `${prefix}[${index}]` : `[${index}]`;
+        Object.assign(accumulator, flattenObject(value, nextPrefix));
+        return accumulator;
+      },
+      {},
+    );
   }
 
-  return Object.entries(source).reduce<Record<string, unknown>>((accumulator, [key, value]) => {
-    const nextPrefix = prefix ? `${prefix}.${key}` : key;
-    Object.assign(accumulator, flattenObject(value, nextPrefix));
-    return accumulator;
-  }, {});
+  return Object.entries(source).reduce<Record<string, unknown>>(
+    (accumulator, [key, value]) => {
+      const nextPrefix = prefix ? `${prefix}.${key}` : key;
+      Object.assign(accumulator, flattenObject(value, nextPrefix));
+      return accumulator;
+    },
+    {},
+  );
 }
 
-export function unflattenObject<TValue>(source: Record<string, unknown>): TValue {
+export function unflattenObject<TValue>(
+  source: Record<string, unknown>,
+): TValue {
   let output: unknown = {};
   for (const [path, value] of Object.entries(source)) {
     output = setByPath(output, path, value);
@@ -191,7 +218,10 @@ export function unflattenObject<TValue>(source: Record<string, unknown>): TValue
   return output as TValue;
 }
 
-function applyKeyMapTransform(transform: KeyMapTransform, value: unknown): [string, unknown] {
+function applyKeyMapTransform(
+  transform: KeyMapTransform,
+  value: unknown,
+): [string, unknown] {
   if (typeof transform === "string") {
     return [transform, value];
   }
@@ -221,8 +251,17 @@ export function mapNestedKeys<TValue>(
 }
 
 export function normalizePaths(paths: string[]): string[] {
-  const unique = [...new Set(paths.filter(Boolean))].sort((left, right) => left.length - right.length);
+  const unique = [...new Set(paths.filter(Boolean))].sort(
+    (left, right) => left.length - right.length,
+  );
   return unique.filter((path, index) => {
-    return !unique.slice(0, index).some((candidate) => path === candidate || path.startsWith(`${candidate}.`) || path.startsWith(`${candidate}[`));
+    return !unique
+      .slice(0, index)
+      .some(
+        (candidate) =>
+          path === candidate ||
+          path.startsWith(`${candidate}.`) ||
+          path.startsWith(`${candidate}[`),
+      );
   });
 }

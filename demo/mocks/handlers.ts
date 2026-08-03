@@ -1,5 +1,8 @@
 import { delay, http, HttpResponse } from "msw";
-import type { EmployeeOnboardingFormValues, EmploymentPayload } from "../../examples/employeeOnboardingModel";
+import type {
+  EmployeeOnboardingFormValues,
+  EmploymentPayload,
+} from "../../examples/employeeOnboardingModel";
 import { defaultEmployeeOnboardingValues } from "../../examples/employeeOnboardingModel";
 import type { EmployeeSummary } from "../api/employeesApi";
 
@@ -46,7 +49,10 @@ function persistDatabase() {
   );
 }
 
-function seedRecord(employeeId: string, overrides?: Partial<EmployeeOnboardingFormValues>): EmployeeRecord {
+function seedRecord(
+  employeeId: string,
+  overrides?: Partial<EmployeeOnboardingFormValues>,
+): EmployeeRecord {
   const seeded: EmployeeRecord = {
     employeeId,
     values: {
@@ -76,9 +82,15 @@ function seedRecord(employeeId: string, overrides?: Partial<EmployeeOnboardingFo
         ...clone(defaultEmployeeOnboardingValues.acknowledgements),
         ...(overrides?.acknowledgements ?? {}),
       },
-      dependents: overrides?.dependents ?? clone(defaultEmployeeOnboardingValues.dependents),
-      emergencyContacts: overrides?.emergencyContacts ?? clone(defaultEmployeeOnboardingValues.emergencyContacts),
-      equipmentRequests: overrides?.equipmentRequests ?? clone(defaultEmployeeOnboardingValues.equipmentRequests),
+      dependents:
+        overrides?.dependents ??
+        clone(defaultEmployeeOnboardingValues.dependents),
+      emergencyContacts:
+        overrides?.emergencyContacts ??
+        clone(defaultEmployeeOnboardingValues.emergencyContacts),
+      equipmentRequests:
+        overrides?.equipmentRequests ??
+        clone(defaultEmployeeOnboardingValues.equipmentRequests),
     },
     lastUpdatedAt: new Date().toISOString(),
     revision: 1,
@@ -112,7 +124,8 @@ function loadDatabase() {
         birthDate: defaultEmployeeOnboardingValues.profile.birthDate,
         personalEmail: defaultEmployeeOnboardingValues.profile.personalEmail,
         mobilePhone: defaultEmployeeOnboardingValues.profile.mobilePhone,
-        citizenshipStatus: defaultEmployeeOnboardingValues.profile.citizenshipStatus,
+        citizenshipStatus:
+          defaultEmployeeOnboardingValues.profile.citizenshipStatus,
         startDate: "2026-09-15",
       },
       employment: {
@@ -212,7 +225,10 @@ export const handlers = [
         ...defaultEmployeeOnboardingValues.profile,
         firstName: body.firstName,
         lastName: body.lastName,
-        personalEmail: `${body.firstName}.${body.lastName}`.toLowerCase().replace(/\s+/g, ".") + "@example.com",
+        personalEmail:
+          `${body.firstName}.${body.lastName}`
+            .toLowerCase()
+            .replace(/\s+/g, ".") + "@example.com",
         startDate: body.startDate,
       },
       employment: {
@@ -272,66 +288,95 @@ export const handlers = [
       lastUpdatedAt: record.lastUpdatedAt,
     });
   }),
-  http.patch(apiPath("/employees/:employeeId/profile"), async ({ params, request }) => {
-    await delay(450);
-    const employeeId = String(params.employeeId);
-    const payload = (await request.json()) as Partial<EmployeeOnboardingFormValues>;
-    const record = getEmployeeRecord(employeeId);
-    const nextValues: EmployeeOnboardingFormValues = {
-      ...record.values,
-      profile: payload.profile ?? record.values.profile,
-      address: payload.address ?? record.values.address,
-    };
-    const nextRecord = commit(employeeId, nextValues);
-    return HttpResponse.json({ ok: true, revision: `profile-${nextRecord.revision}`, lastUpdatedAt: nextRecord.lastUpdatedAt });
-  }),
-  http.patch(apiPath("/employees/:employeeId/employment"), async ({ params, request }) => {
-    await delay(500);
-    const employeeId = String(params.employeeId);
-    const payload = (await request.json()) as EmploymentPayload;
-    const record = getEmployeeRecord(employeeId);
-    const nextValues: EmployeeOnboardingFormValues = {
-      ...record.values,
-      employment: {
-        title: payload.title,
-        department: payload.department,
-        managerId: payload.managerId,
-        locationCode: payload.locationCode,
-        workMode: payload.workMode,
-        salary: payload.salary,
-        bonusEligible: payload.bonusEligible,
-        notes: payload.notes,
-      },
-      equipmentRequests: payload.equipmentRequests,
-    };
-    const nextRecord = commit(employeeId, nextValues);
-    return HttpResponse.json({ revision: `employment-${nextRecord.revision}` });
-  }),
-  http.put(apiPath("/employees/:employeeId/benefits-enrollment"), async ({ params, request }) => {
-    await delay(650);
-    const employeeId = String(params.employeeId);
-    const payload = (await request.json()) as Partial<EmployeeOnboardingFormValues>;
-    const record = getEmployeeRecord(employeeId);
-    const nextValues: EmployeeOnboardingFormValues = {
-      ...record.values,
-      benefits: payload.benefits ?? record.values.benefits,
-      dependents: payload.dependents ?? record.values.dependents,
-      payroll: payload.payroll ?? record.values.payroll,
-      acknowledgements: payload.acknowledgements ?? record.values.acknowledgements,
-    };
-    const nextRecord = commit(employeeId, nextValues);
-    return HttpResponse.json({ ok: true, revision: `benefits-${nextRecord.revision}` });
-  }),
-  http.put(apiPath("/employees/:employeeId/emergency-contacts/bulk"), async ({ params, request }) => {
-    await delay(400);
-    const employeeId = String(params.employeeId);
-    const payload = (await request.json()) as Partial<EmployeeOnboardingFormValues>;
-    const record = getEmployeeRecord(employeeId);
-    const nextValues: EmployeeOnboardingFormValues = {
-      ...record.values,
-      emergencyContacts: payload.emergencyContacts ?? record.values.emergencyContacts,
-    };
-    const nextRecord = commit(employeeId, nextValues);
-    return HttpResponse.json({ ok: true, revision: `contacts-${nextRecord.revision}` });
-  }),
+  http.patch(
+    apiPath("/employees/:employeeId/profile"),
+    async ({ params, request }) => {
+      await delay(450);
+      const employeeId = String(params.employeeId);
+      const payload =
+        (await request.json()) as Partial<EmployeeOnboardingFormValues>;
+      const record = getEmployeeRecord(employeeId);
+      const nextValues: EmployeeOnboardingFormValues = {
+        ...record.values,
+        profile: payload.profile ?? record.values.profile,
+        address: payload.address ?? record.values.address,
+      };
+      const nextRecord = commit(employeeId, nextValues);
+      return HttpResponse.json({
+        ok: true,
+        revision: `profile-${nextRecord.revision}`,
+        lastUpdatedAt: nextRecord.lastUpdatedAt,
+      });
+    },
+  ),
+  http.patch(
+    apiPath("/employees/:employeeId/employment"),
+    async ({ params, request }) => {
+      await delay(500);
+      const employeeId = String(params.employeeId);
+      const payload = (await request.json()) as EmploymentPayload;
+      const record = getEmployeeRecord(employeeId);
+      const nextValues: EmployeeOnboardingFormValues = {
+        ...record.values,
+        employment: {
+          title: payload.title,
+          department: payload.department,
+          managerId: payload.managerId,
+          locationCode: payload.locationCode,
+          workMode: payload.workMode,
+          salary: payload.salary,
+          bonusEligible: payload.bonusEligible,
+          notes: payload.notes,
+        },
+        equipmentRequests: payload.equipmentRequests,
+      };
+      const nextRecord = commit(employeeId, nextValues);
+      return HttpResponse.json({
+        revision: `employment-${nextRecord.revision}`,
+      });
+    },
+  ),
+  http.put(
+    apiPath("/employees/:employeeId/benefits-enrollment"),
+    async ({ params, request }) => {
+      await delay(650);
+      const employeeId = String(params.employeeId);
+      const payload =
+        (await request.json()) as Partial<EmployeeOnboardingFormValues>;
+      const record = getEmployeeRecord(employeeId);
+      const nextValues: EmployeeOnboardingFormValues = {
+        ...record.values,
+        benefits: payload.benefits ?? record.values.benefits,
+        dependents: payload.dependents ?? record.values.dependents,
+        payroll: payload.payroll ?? record.values.payroll,
+        acknowledgements:
+          payload.acknowledgements ?? record.values.acknowledgements,
+      };
+      const nextRecord = commit(employeeId, nextValues);
+      return HttpResponse.json({
+        ok: true,
+        revision: `benefits-${nextRecord.revision}`,
+      });
+    },
+  ),
+  http.put(
+    apiPath("/employees/:employeeId/emergency-contacts/bulk"),
+    async ({ params, request }) => {
+      await delay(400);
+      const employeeId = String(params.employeeId);
+      const payload =
+        (await request.json()) as Partial<EmployeeOnboardingFormValues>;
+      const record = getEmployeeRecord(employeeId);
+      const nextValues: EmployeeOnboardingFormValues = {
+        ...record.values,
+        emergencyContacts:
+          payload.emergencyContacts ?? record.values.emergencyContacts,
+      };
+      const nextRecord = commit(employeeId, nextValues);
+      return HttpResponse.json({
+        ok: true,
+        revision: `contacts-${nextRecord.revision}`,
+      });
+    },
+  ),
 ];

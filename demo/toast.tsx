@@ -1,4 +1,10 @@
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 type ToastLevel = "success" | "error" | "info";
 
@@ -21,19 +27,24 @@ function createToastId() {
 export function ToastProvider(props: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastRecord[]>([]);
 
-  const pushToast = useCallback((message: string, level: ToastLevel = "info") => {
-    const nextToast: ToastRecord = {
-      id: createToastId(),
-      message,
-      level,
-    };
+  const pushToast = useCallback(
+    (message: string, level: ToastLevel = "info") => {
+      const nextToast: ToastRecord = {
+        id: createToastId(),
+        message,
+        level,
+      };
 
-    setToasts((current) => [...current, nextToast]);
+      setToasts((current) => [...current, nextToast]);
 
-    window.setTimeout(() => {
-      setToasts((current) => current.filter((toast) => toast.id !== nextToast.id));
-    }, 3200);
-  }, []);
+      window.setTimeout(() => {
+        setToasts((current) =>
+          current.filter((toast) => toast.id !== nextToast.id),
+        );
+      }, 3200);
+    },
+    [],
+  );
 
   const value = useMemo<ToastContextValue>(() => ({ pushToast }), [pushToast]);
 

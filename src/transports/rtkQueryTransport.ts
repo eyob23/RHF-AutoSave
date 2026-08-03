@@ -11,7 +11,9 @@ export interface RtkQueryTransportOptions<
   mapResult?: (result: unknown) => AutosaveTransportResult<TResult>;
 }
 
-type TriggerLike<TArg> = (arg: TArg) => Promise<unknown> & { unwrap?: () => Promise<unknown> };
+type TriggerLike<TArg> = (
+  arg: TArg,
+) => Promise<unknown> & { unwrap?: () => Promise<unknown> };
 
 export function rtkQueryTransport<
   TFormValues extends FieldValues,
@@ -23,9 +25,16 @@ export function rtkQueryTransport<
   options?: RtkQueryTransportOptions<TFormValues, TPayload, TArg, TResult>,
 ): AutosaveTransport<TFormValues, TPayload, TResult> {
   return async ({ payload, values }) => {
-    const arg = options?.mapArg ? options.mapArg(payload, values) : (payload as unknown as TArg);
+    const arg = options?.mapArg
+      ? options.mapArg(payload, values)
+      : (payload as unknown as TArg);
     const request = trigger(arg);
-    const result = typeof request.unwrap === "function" ? await request.unwrap() : await request;
-    return options?.mapResult ? options.mapResult(result) : { ok: true, data: result as TResult };
+    const result =
+      typeof request.unwrap === "function"
+        ? await request.unwrap()
+        : await request;
+    return options?.mapResult
+      ? options.mapResult(result)
+      : { ok: true, data: result as TResult };
   };
 }

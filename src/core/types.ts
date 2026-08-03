@@ -109,8 +109,14 @@ export interface ArrayFieldDiffHandler<
   TPayload = Partial<TFormValues>,
 > {
   idOf: (item: TItem) => string | number;
-  onAdd?: (item: TItem, context: AutosaveTransportContext<TFormValues, TPayload>) => Promise<void> | void;
-  onRemove?: (item: TItem, context: AutosaveTransportContext<TFormValues, TPayload>) => Promise<void> | void;
+  onAdd?: (
+    item: TItem,
+    context: AutosaveTransportContext<TFormValues, TPayload>,
+  ) => Promise<void> | void;
+  onRemove?: (
+    item: TItem,
+    context: AutosaveTransportContext<TFormValues, TPayload>,
+  ) => Promise<void> | void;
   onChange?: (
     item: ArrayDiffChange<TItem>,
     context: AutosaveTransportContext<TFormValues, TPayload>,
@@ -180,7 +186,9 @@ export interface AutosaveMergeOptions<
   TPayload,
 > {
   enabled?: boolean;
-  getKey: (context: AutosaveMergeContext<TFormValues, TPayload>) => string | null;
+  getKey: (
+    context: AutosaveMergeContext<TFormValues, TPayload>,
+  ) => string | null;
   changedPathsStrategy?: "union" | "latest";
 }
 
@@ -188,7 +196,9 @@ export interface AutosaveQueueStore<
   TFormValues extends FieldValues,
   TPayload = Partial<TFormValues>,
 > {
-  enqueue: (record: AutosaveQueueRecord<TFormValues, TPayload>) => Promise<void>;
+  enqueue: (
+    record: AutosaveQueueRecord<TFormValues, TPayload>,
+  ) => Promise<void>;
   list: () => Promise<Array<AutosaveQueueRecord<TFormValues, TPayload>>>;
   remove: (id: string) => Promise<void>;
   clear: () => Promise<void>;
@@ -223,10 +233,7 @@ export interface UseRhfAutosaveOptions<
   shouldSave?: (
     context: AutosaveShouldSaveContext<TFormValues, TPayload>,
   ) => boolean | Promise<boolean>;
-  selectPayload?: (
-    values: TFormValues,
-    changedPaths: string[],
-  ) => TPayload;
+  selectPayload?: (values: TFormValues, changedPaths: string[]) => TPayload;
   keyMap?: KeyMap;
   diffMap?: DiffMap<TFormValues>;
   autoHydrate?: boolean;
@@ -234,12 +241,17 @@ export interface UseRhfAutosaveOptions<
   queue?: AutosaveQueueOptions<TFormValues, TPayload>;
   merge?: AutosaveMergeOptions<TFormValues, TPayload>;
   mutationLog?: AutosaveMutationLogOptions<TPayload>;
-  onSaved?: (result: AutosaveTransportResult<TResult>, payload: TPayload) => void;
+  onSaved?: (
+    result: AutosaveTransportResult<TResult>,
+    payload: TPayload,
+  ) => void;
   onError?: (error: Error, payload: TPayload | null) => void;
   onStatusChange?: (status: AutosaveStatusSnapshot) => void;
 }
 
-export interface AutosaveSaveResult<TResult = unknown> extends AutosaveTransportResult<TResult> {
+export interface AutosaveSaveResult<
+  TResult = unknown,
+> extends AutosaveTransportResult<TResult> {
   skipped?: boolean;
   queued?: boolean;
 }
@@ -273,4 +285,6 @@ export interface AutosaveController<
   subscribe: (listener: () => void) => () => void;
 }
 
-export type AutosaveSelector<TSelection> = (state: AutosaveStatusSnapshot) => TSelection;
+export type AutosaveSelector<TSelection> = (
+  state: AutosaveStatusSnapshot,
+) => TSelection;

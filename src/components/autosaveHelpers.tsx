@@ -1,5 +1,8 @@
 import { useState } from "react";
-import type { AutosaveController, AutosaveMutationLogEntry } from "../core/types";
+import type {
+  AutosaveController,
+  AutosaveMutationLogEntry,
+} from "../core/types";
 import { useAutosaveSelector } from "../hooks/useAutosaveSelector";
 
 type AnyRecord = Record<string, unknown>;
@@ -39,8 +42,14 @@ export function AutosaveStateSummary<
   retryLabel?: string;
 }) {
   const phase = useAutosaveSelector(props.controller, (state) => state.phase);
-  const queuedCount = useAutosaveSelector(props.controller, (state) => state.queuedCount);
-  const hasPendingChanges = useAutosaveSelector(props.controller, (state) => state.hasPendingChanges);
+  const queuedCount = useAutosaveSelector(
+    props.controller,
+    (state) => state.queuedCount,
+  );
+  const hasPendingChanges = useAutosaveSelector(
+    props.controller,
+    (state) => state.hasPendingChanges,
+  );
   const [isRetrying, setIsRetrying] = useState(false);
 
   return (
@@ -60,7 +69,9 @@ export function AutosaveStateSummary<
             background: "#fffbeb",
           }}
         >
-          <div style={{ marginBottom: 8 }}>Unsaved changes were queued. Retry when ready.</div>
+          <div style={{ marginBottom: 8 }}>
+            Unsaved changes were queued. Retry when ready.
+          </div>
           <button
             type="button"
             onClick={async () => {
@@ -73,7 +84,7 @@ export function AutosaveStateSummary<
             }}
             disabled={isRetrying}
           >
-            {isRetrying ? "Retrying..." : props.retryLabel ?? "Retry now"}
+            {isRetrying ? "Retrying..." : (props.retryLabel ?? "Retry now")}
           </button>
         </div>
       ) : null}
@@ -93,16 +104,26 @@ export function AutosaveMutationLog<
   showPayload?: boolean;
   timestampFormatter?: (timestamp: number) => string;
 }) {
-  const mutationLog = useAutosaveSelector(props.controller, (state) => state.mutationLog);
+  const mutationLog = useAutosaveSelector(
+    props.controller,
+    (state) => state.mutationLog,
+  );
   const maxItems = props.maxItems ?? 10;
-  const logItems = mutationLog.slice(0, maxItems) as AutosaveMutationLogEntry<TPayload>[];
+  const logItems = mutationLog.slice(
+    0,
+    maxItems,
+  ) as AutosaveMutationLogEntry<TPayload>[];
   const formatTimestamp = props.timestampFormatter ?? defaultTimestampFormatter;
 
   return (
     <section>
       <strong>{props.title ?? "Mutation log"}</strong>
-      <ul style={{ margin: "8px 0 0", paddingLeft: 18, display: "grid", gap: 6 }}>
-        {logItems.length === 0 ? <li>{props.emptyMessage ?? "No autosave events yet."}</li> : null}
+      <ul
+        style={{ margin: "8px 0 0", paddingLeft: 18, display: "grid", gap: 6 }}
+      >
+        {logItems.length === 0 ? (
+          <li>{props.emptyMessage ?? "No autosave events yet."}</li>
+        ) : null}
         {logItems.map((entry) => (
           <li
             key={entry.id}
@@ -115,10 +136,18 @@ export function AutosaveMutationLog<
                     : "#374151",
             }}
           >
-            <div style={{ fontSize: 11, opacity: 0.8 }}>{formatTimestamp(entry.timestamp)}</div>
+            <div style={{ fontSize: 11, opacity: 0.8 }}>
+              {formatTimestamp(entry.timestamp)}
+            </div>
             <div>{entry.message}</div>
-            {entry.entityId ? <div style={{ fontSize: 12, opacity: 0.9 }}>Entity ID: {entry.entityId}</div> : null}
-            <div style={{ fontSize: 12, opacity: 0.85 }}>Retries: {entry.retryCount}</div>
+            {entry.entityId ? (
+              <div style={{ fontSize: 12, opacity: 0.9 }}>
+                Entity ID: {entry.entityId}
+              </div>
+            ) : null}
+            <div style={{ fontSize: 12, opacity: 0.85 }}>
+              Retries: {entry.retryCount}
+            </div>
             {entry.merged ? (
               <div style={{ marginTop: 4, fontSize: 12, opacity: 0.9 }}>
                 Merged key: {entry.merged.key} ({entry.merged.source})

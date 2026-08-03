@@ -63,7 +63,9 @@ describe("useGlobalAutosaveState", () => {
             }
 
             const index = record.mergeKey.lastIndexOf(":");
-            return index >= 0 ? record.mergeKey.slice(index + 1) : record.mergeKey;
+            return index >= 0
+              ? record.mergeKey.slice(index + 1)
+              : record.mergeKey;
           },
         },
       ]);
@@ -71,10 +73,17 @@ describe("useGlobalAutosaveState", () => {
 
     expect(result.current.summary.hasUnsavedChanges).toBe(true);
     expect(result.current.summary.queuedMutationCount).toBe(3);
-    expect(result.current.summary.unsavedEntityKeys.sort()).toEqual(["emp-1", "emp-2"]);
+    expect(result.current.summary.unsavedEntityKeys.sort()).toEqual([
+      "emp-1",
+      "emp-2",
+    ]);
 
-    const emp1 = result.current.summary.entities.find((entity) => entity.entityKey === "emp-1");
-    const emp2 = result.current.summary.entities.find((entity) => entity.entityKey === "emp-2");
+    const emp1 = result.current.summary.entities.find(
+      (entity) => entity.entityKey === "emp-1",
+    );
+    const emp2 = result.current.summary.entities.find(
+      (entity) => entity.entityKey === "emp-2",
+    );
     expect(emp1?.state.queuedCount).toBe(2);
     expect(emp2?.state.queuedCount).toBe(1);
   });
@@ -141,21 +150,26 @@ describe("useGlobalAutosaveState", () => {
       <GlobalAutosaveStateProvider>{children}</GlobalAutosaveStateProvider>
     );
 
-    const { result } = renderHook(() => {
-      const unsavedCount = useGlobalAutosaveQuery((state) => state.unsavedEntityKeys.length);
-      const registry = useGlobalAutosaveRegistry();
-      const valueChangeCountRef = useRef(0);
+    const { result } = renderHook(
+      () => {
+        const unsavedCount = useGlobalAutosaveQuery(
+          (state) => state.unsavedEntityKeys.length,
+        );
+        const registry = useGlobalAutosaveRegistry();
+        const valueChangeCountRef = useRef(0);
 
-      useEffect(() => {
-        valueChangeCountRef.current += 1;
-      }, [unsavedCount]);
+        useEffect(() => {
+          valueChangeCountRef.current += 1;
+        }, [unsavedCount]);
 
-      return {
-        unsavedCount,
-        registry,
-        valueChangeCount: valueChangeCountRef.current,
-      };
-    }, { wrapper });
+        return {
+          unsavedCount,
+          registry,
+          valueChangeCount: valueChangeCountRef.current,
+        };
+      },
+      { wrapper },
+    );
 
     expect(result.current.unsavedCount).toBe(0);
     const baselineValueChangeCount = result.current.valueChangeCount;

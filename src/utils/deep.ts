@@ -55,7 +55,10 @@ export function isDeepEqual(left: unknown, right: unknown): boolean {
   return false;
 }
 
-export function deepMerge<TValue>(target: TValue, source: Partial<TValue>): TValue {
+export function deepMerge<TValue>(
+  target: TValue,
+  source: Partial<TValue>,
+): TValue {
   if (Array.isArray(target) && Array.isArray(source)) {
     return cloneDeep(source) as TValue;
   }
@@ -75,12 +78,21 @@ export function deepMerge<TValue>(target: TValue, source: Partial<TValue>): TVal
   return cloneDeep(source as TValue);
 }
 
-export function findChangedPaths(left: unknown, right: unknown, prefix = ""): string[] {
+export function findChangedPaths(
+  left: unknown,
+  right: unknown,
+  prefix = "",
+): string[] {
   if (isDeepEqual(left, right)) {
     return [];
   }
 
-  if (!isPlainObject(left) && !isPlainObject(right) && !Array.isArray(left) && !Array.isArray(right)) {
+  if (
+    !isPlainObject(left) &&
+    !isPlainObject(right) &&
+    !Array.isArray(left) &&
+    !Array.isArray(right)
+  ) {
     return prefix ? [prefix] : [];
   }
 
@@ -108,7 +120,11 @@ export function findChangedPaths(left: unknown, right: unknown, prefix = ""): st
   return output;
 }
 
-export function applyPaths<TValue>(source: TValue, reference: TValue, paths: string[]): TValue {
+export function applyPaths<TValue>(
+  source: TValue,
+  reference: TValue,
+  paths: string[],
+): TValue {
   return paths.reduce((accumulator, path) => {
     const nextValue = getByPath(reference, path);
     return setByPath(accumulator, path, cloneDeep(nextValue));
@@ -125,14 +141,17 @@ export function diffArraysBy<TItem>(
 
   const added = after.filter((item) => !beforeMap.has(idOf(item)));
   const removed = before.filter((item) => !afterMap.has(idOf(item)));
-  const modified = after.reduce<Array<{ before: TItem; after: TItem }>>((accumulator, item) => {
-    const id = idOf(item);
-    const previous = beforeMap.get(id);
-    if (previous && !isDeepEqual(previous, item)) {
-      accumulator.push({ before: previous, after: item });
-    }
-    return accumulator;
-  }, []);
+  const modified = after.reduce<Array<{ before: TItem; after: TItem }>>(
+    (accumulator, item) => {
+      const id = idOf(item);
+      const previous = beforeMap.get(id);
+      if (previous && !isDeepEqual(previous, item)) {
+        accumulator.push({ before: previous, after: item });
+      }
+      return accumulator;
+    },
+    [],
+  );
 
   return {
     added,

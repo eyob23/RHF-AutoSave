@@ -1,5 +1,9 @@
 import { useSyncExternalStore } from "react";
-import type { AutosaveController, AutosaveSelector, AutosaveStatusSnapshot } from "../core/types";
+import type {
+  AutosaveController,
+  AutosaveSelector,
+  AutosaveStatusSnapshot,
+} from "../core/types";
 
 export function useAutosaveSelector<
   TSelection,
@@ -7,14 +11,21 @@ export function useAutosaveSelector<
   TPayload,
   TResult,
 >(
-  controller: Pick<AutosaveController<TFormValues, TPayload, TResult>, "getState" | "subscribe">,
+  controller: Pick<
+    AutosaveController<TFormValues, TPayload, TResult>,
+    "getState" | "subscribe"
+  >,
   selector: AutosaveSelector<TSelection>,
   isEqual: (left: TSelection, right: TSelection) => boolean = Object.is,
 ): TSelection {
   const subscribe = (listener: () => void) => {
-    let previousSelection = selector(controller.getState() as AutosaveStatusSnapshot);
+    let previousSelection = selector(
+      controller.getState() as AutosaveStatusSnapshot,
+    );
     return controller.subscribe(() => {
-      const nextSelection = selector(controller.getState() as AutosaveStatusSnapshot);
+      const nextSelection = selector(
+        controller.getState() as AutosaveStatusSnapshot,
+      );
       if (!isEqual(previousSelection, nextSelection)) {
         previousSelection = nextSelection;
         listener();
@@ -22,6 +33,7 @@ export function useAutosaveSelector<
     });
   };
 
-  const getSnapshot = () => selector(controller.getState() as AutosaveStatusSnapshot);
+  const getSnapshot = () =>
+    selector(controller.getState() as AutosaveStatusSnapshot);
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }

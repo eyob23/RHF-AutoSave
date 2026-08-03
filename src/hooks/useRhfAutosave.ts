@@ -15,8 +15,19 @@ import type {
   UseRhfAutosaveOptions,
 } from "../core/types";
 import { buildDirtyTree, selectDirtyPayload } from "../utils/dirty";
-import { applyPaths, cloneDeep, diffArraysBy, findChangedPaths, isDeepEqual } from "../utils/deep";
-import { getByPath, mapNestedKeys, normalizePaths, omitPaths } from "../utils/path";
+import {
+  applyPaths,
+  cloneDeep,
+  diffArraysBy,
+  findChangedPaths,
+  isDeepEqual,
+} from "../utils/deep";
+import {
+  getByPath,
+  mapNestedKeys,
+  normalizePaths,
+  omitPaths,
+} from "../utils/path";
 
 const defaultConfig: AutosaveConfig = {
   debounceMs: 800,
@@ -66,14 +77,22 @@ function normalizeLogEntryLimit(value: number | undefined) {
   return Math.max(1, Math.floor(value));
 }
 
-function updateAverage(currentAverage: number, previousCount: number, nextValue: number) {
+function updateAverage(
+  currentAverage: number,
+  previousCount: number,
+  nextValue: number,
+) {
   if (previousCount <= 0) {
     return nextValue;
   }
   return (currentAverage * previousCount + nextValue) / (previousCount + 1);
 }
 
-function mergeChangedPaths(currentPaths: string[], nextPaths: string[], strategy: "union" | "latest") {
+function mergeChangedPaths(
+  currentPaths: string[],
+  nextPaths: string[],
+  strategy: "union" | "latest",
+) {
   if (strategy === "latest") {
     return normalizePaths(nextPaths);
   }
@@ -92,7 +111,9 @@ function pickSaveReason(
     force: 4,
   };
 
-  return priority[nextReason] >= priority[currentReason] ? nextReason : currentReason;
+  return priority[nextReason] >= priority[currentReason]
+    ? nextReason
+    : currentReason;
 }
 
 function extractEntityIdFromMergeKey(mergeKey: string | null | undefined) {
@@ -120,7 +141,11 @@ async function runArrayDiffHandlers<TFormValues extends FieldValues, TPayload>(
   for (const [path, handler] of Object.entries(diffMap)) {
     const before = (getByPath(context.baseline, path) ?? []) as unknown[];
     const after = (getByPath(context.values, path) ?? []) as unknown[];
-    const diff = diffArraysBy(before, after, handler.idOf as (item: unknown) => string | number);
+    const diff = diffArraysBy(
+      before,
+      after,
+      handler.idOf as (item: unknown) => string | number,
+    );
     if (!diff.hasChanges) {
       continue;
     }
@@ -137,7 +162,9 @@ async function runArrayDiffHandlers<TFormValues extends FieldValues, TPayload>(
       await handler.onChange?.(item, context);
     }
 
-    const hasCustomArrayHandlers = Boolean(handler.onAdd || handler.onRemove || handler.onChange);
+    const hasCustomArrayHandlers = Boolean(
+      handler.onAdd || handler.onRemove || handler.onChange,
+    );
     if (handler.excludeFromPayload ?? hasCustomArrayHandlers) {
       handledPaths.push(path);
     }
@@ -215,7 +242,9 @@ export function useRhfAutosave<
     [],
   );
 
-  const appendMutationLog = (entry: Omit<AutosaveMutationLogEntry<TPayload>, "id" | "timestamp">) => {
+  const appendMutationLog = (
+    entry: Omit<AutosaveMutationLogEntry<TPayload>, "id" | "timestamp">,
+  ) => {
     const nextEntry: AutosaveMutationLogEntry<TPayload> = {
       id: createLogId(),
       timestamp: Date.now(),
@@ -224,11 +253,17 @@ export function useRhfAutosave<
 
     const logTarget = optionsRef.current.mutationLog?.target ?? "memory";
     const shouldWriteToMemory = logTarget === "memory" || logTarget === "both";
-    const shouldWriteToExternal = logTarget === "external" || logTarget === "both";
-    const logLimit = normalizeLogEntryLimit(optionsRef.current.mutationLog?.maxEntries);
+    const shouldWriteToExternal =
+      logTarget === "external" || logTarget === "both";
+    const logLimit = normalizeLogEntryLimit(
+      optionsRef.current.mutationLog?.maxEntries,
+    );
 
     if (shouldWriteToMemory) {
-      mutationLogRef.current = [nextEntry, ...mutationLogRef.current].slice(0, logLimit);
+      mutationLogRef.current = [nextEntry, ...mutationLogRef.current].slice(
+        0,
+        logLimit,
+      );
     }
 
     if (shouldWriteToExternal && optionsRef.current.mutationLog?.onLog) {
@@ -239,7 +274,9 @@ export function useRhfAutosave<
       }
     }
 
-    updateStore({ mutationLog: shouldWriteToMemory ? [...mutationLogRef.current] : [] });
+    updateStore({
+      mutationLog: shouldWriteToMemory ? [...mutationLogRef.current] : [],
+    });
   };
 
   const updateStore = (update: Partial<AutosaveStatusSnapshot>) => {
@@ -262,11 +299,16 @@ export function useRhfAutosave<
   };
 
   const recomputeModifiedPaths = () => {
-    const next = new Set(findChangedPaths(baselineRef.current, latestValuesRef.current));
+    const next = new Set(
+      findChangedPaths(baselineRef.current, latestValuesRef.current),
+    );
     modifiedPathsRef.current = next;
     updateStore({
       hasPendingChanges: next.size > 0,
-      phase: next.size > 0 && !store.getState().isSaving ? "scheduled" : store.getState().phase,
+      phase:
+        next.size > 0 && !store.getState().isSaving
+          ? "scheduled"
+          : store.getState().phase,
     });
   };
 
@@ -288,7 +330,8 @@ export function useRhfAutosave<
 
     historyTimerRef.current = window.setTimeout(() => {
       const currentValues = cloneDeep(latestValuesRef.current);
-      const lastSnapshot = historyRef.current.past[historyRef.current.past.length - 1];
+      const lastSnapshot =
+        historyRef.current.past[historyRef.current.past.length - 1];
       if (lastSnapshot && isDeepEqual(lastSnapshot, currentValues)) {
         return;
       }
@@ -305,7 +348,10 @@ export function useRhfAutosave<
 
   const getChangedPaths = () => normalizePaths([...modifiedPathsRef.current]);
 
-  const buildPayload = (values: TFormValues, changedPaths: string[]): TPayload => {
+  const buildPayload = (
+    values: TFormValues,
+    changedPaths: string[],
+  ): TPayload => {
     const selectedPayload = optionsRef.current.selectPayload
       ? optionsRef.current.selectPayload(values, changedPaths)
       : (selectDirtyPayload(values, changedPaths) as TPayload);
@@ -314,7 +360,10 @@ export function useRhfAutosave<
       return selectedPayload;
     }
 
-    return mapNestedKeys(selectedPayload, optionsRef.current.keyMap) as TPayload;
+    return mapNestedKeys(
+      selectedPayload,
+      optionsRef.current.keyMap,
+    ) as TPayload;
   };
 
   const validate = async (changedPaths: string[]) => {
@@ -330,7 +379,8 @@ export function useRhfAutosave<
     return formRef.current.trigger(changedPaths as Path<TFormValues>[]);
   };
 
-  const getMergeStrategy = () => optionsRef.current.merge?.changedPathsStrategy ?? "union";
+  const getMergeStrategy = () =>
+    optionsRef.current.merge?.changedPathsStrategy ?? "union";
 
   const getMergeKey = (
     reason: "debounce" | "flush" | "force" | "replay",
@@ -369,15 +419,24 @@ export function useRhfAutosave<
     try {
       if (mergeKey) {
         const existingRecords = await queue.store.list();
-        const existing = existingRecords.find((queued) => queued.mergeKey === mergeKey);
+        const existing = existingRecords.find(
+          (queued) => queued.mergeKey === mergeKey,
+        );
         if (existing) {
           const strategy = getMergeStrategy();
-          const mergedChangedPaths = mergeChangedPaths(existing.changedPaths, nextRecord.changedPaths, strategy);
+          const mergedChangedPaths = mergeChangedPaths(
+            existing.changedPaths,
+            nextRecord.changedPaths,
+            strategy,
+          );
           const mergedRecord = {
             ...nextRecord,
             id: existing.id,
             createdAt: existing.createdAt,
-            retryCount: Math.max(existing.retryCount ?? 0, nextRecord.retryCount ?? 0),
+            retryCount: Math.max(
+              existing.retryCount ?? 0,
+              nextRecord.retryCount ?? 0,
+            ),
             changedPaths: mergedChangedPaths,
           };
 
@@ -432,14 +491,18 @@ export function useRhfAutosave<
   ) => {
     const mergeKey = getMergeKey(reason, values, payload, changedPaths);
 
-    return queueFailedSave({
-      id: createRecordId(),
-      createdAt: Date.now(),
-      values: cloneDeep(values),
-      payload: cloneDeep(payload),
-      changedPaths: [...changedPaths],
-      retryCount,
-    }, mergeKey, reason);
+    return queueFailedSave(
+      {
+        id: createRecordId(),
+        createdAt: Date.now(),
+        values: cloneDeep(values),
+        payload: cloneDeep(payload),
+        changedPaths: [...changedPaths],
+        retryCount,
+      },
+      mergeKey,
+      reason,
+    );
   };
 
   const executeSave = async (
@@ -451,18 +514,25 @@ export function useRhfAutosave<
     queuedRetryCount = 0,
   ): Promise<AutosaveSaveResult<TResult>> => {
     latestValuesRef.current = values;
-    const hasPendingChanges = changedPaths.length > 0 || !isDeepEqual(values, baselineRef.current);
+    const hasPendingChanges =
+      changedPaths.length > 0 || !isDeepEqual(values, baselineRef.current);
     if (!hasPendingChanges && reason !== "force" && reason !== "replay") {
       updateStore({ phase: "idle", hasPendingChanges: false });
       return { ok: true, skipped: true };
     }
 
     let payload = forcedPayload ?? buildPayload(values, changedPaths);
-    const entityId = extractEntityIdFromMergeKey(getMergeKey(reason, values, payload, changedPaths));
+    const entityId = extractEntityIdFromMergeKey(
+      getMergeKey(reason, values, payload, changedPaths),
+    );
     const isValid = await validate(changedPaths);
     if (isValid === false) {
       updateStore({ phase: "idle", hasPendingChanges: true });
-      return { ok: false, skipped: true, error: new Error("Autosave validation failed") };
+      return {
+        ok: false,
+        skipped: true,
+        error: new Error("Autosave validation failed"),
+      };
     }
 
     const shouldSave = optionsRef.current.shouldSave
@@ -510,7 +580,10 @@ export function useRhfAutosave<
     const startedAt = performance.now();
 
     try {
-      const handledPaths = await runArrayDiffHandlers(optionsRef.current.diffMap, context);
+      const handledPaths = await runArrayDiffHandlers(
+        optionsRef.current.diffMap,
+        context,
+      );
       if (handledPaths.length > 0) {
         payload = omitPaths(payload, handledPaths) as TPayload;
         context.payload = payload;
@@ -539,7 +612,11 @@ export function useRhfAutosave<
           duration,
         );
 
-        baselineRef.current = applyPaths(baselineRef.current, values, changedPaths);
+        baselineRef.current = applyPaths(
+          baselineRef.current,
+          values,
+          changedPaths,
+        );
         latestValuesRef.current = formRef.current.getValues();
         recomputeModifiedPaths();
 
@@ -699,13 +776,22 @@ export function useRhfAutosave<
             const previousReason = existing.reason;
             const previousChangedPaths = [...existing.changedPaths];
             const mergedReason = pickSaveReason(existing.reason, reason);
-            const mergedChangedPaths = mergeChangedPaths(existing.changedPaths, changedPaths, strategy);
-            const previousPayload = existing.payload ?? buildPayload(existing.values, existing.changedPaths);
+            const mergedChangedPaths = mergeChangedPaths(
+              existing.changedPaths,
+              changedPaths,
+              strategy,
+            );
+            const previousPayload =
+              existing.payload ??
+              buildPayload(existing.values, existing.changedPaths);
             existing.values = values;
             existing.payload = payloadForMerge;
             existing.changedPaths = mergedChangedPaths;
             existing.queuedRecordId = existing.queuedRecordId ?? queuedRecordId;
-            existing.queuedRetryCount = Math.max(existing.queuedRetryCount, queuedRetryCount);
+            existing.queuedRetryCount = Math.max(
+              existing.queuedRetryCount,
+              queuedRetryCount,
+            );
             existing.resolves.push(resolve);
 
             appendMutationLog({
@@ -773,12 +859,16 @@ export function useRhfAutosave<
   const appendHistoryMutationLog = (message: string) => {
     const changedPaths = getChangedPaths();
     const values = cloneDeep(formRef.current.getValues());
-    const payload = changedPaths.length > 0
-      ? cloneDeep(buildPayload(values, changedPaths))
-      : undefined;
-    const entityId = payload !== undefined
-      ? extractEntityIdFromMergeKey(getMergeKey("debounce", values, payload, changedPaths))
-      : undefined;
+    const payload =
+      changedPaths.length > 0
+        ? cloneDeep(buildPayload(values, changedPaths))
+        : undefined;
+    const entityId =
+      payload !== undefined
+        ? extractEntityIdFromMergeKey(
+            getMergeKey("debounce", values, payload, changedPaths),
+          )
+        : undefined;
 
     appendMutationLog({
       level: "info",
@@ -818,7 +908,12 @@ export function useRhfAutosave<
         const snapshotValues = cloneDeep(formRef.current.getValues());
         const snapshotPaths = getChangedPaths();
         const snapshotPayload = buildPayload(snapshotValues, snapshotPaths);
-        void queueSnapshot("flush", snapshotValues, snapshotPayload, snapshotPaths);
+        void queueSnapshot(
+          "flush",
+          snapshotValues,
+          snapshotPayload,
+          snapshotPaths,
+        );
       }
 
       clearSaveTimer();
@@ -855,7 +950,11 @@ export function useRhfAutosave<
 
       updateStore({
         hasPendingChanges: modifiedPathsRef.current.size > 0,
-        phase: store.getState().isSaving ? "saving" : modifiedPathsRef.current.size > 0 ? "scheduled" : "idle",
+        phase: store.getState().isSaving
+          ? "saving"
+          : modifiedPathsRef.current.size > 0
+            ? "scheduled"
+            : "idle",
       });
       scheduleHistoryCapture();
       scheduleSave();
@@ -884,7 +983,10 @@ export function useRhfAutosave<
           hasPendingChanges: false,
           lastError: null,
         });
-        historyRef.current = { past: [cloneDeep(values as TFormValues)], future: [] };
+        historyRef.current = {
+          past: [cloneDeep(values as TFormValues)],
+          future: [],
+        };
       }
     }) as typeof form.reset;
 
@@ -899,10 +1001,14 @@ export function useRhfAutosave<
     }
 
     const handler = (event: KeyboardEvent) => {
-      const isUndo = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z" && !event.shiftKey;
+      const isUndo =
+        (event.metaKey || event.ctrlKey) &&
+        event.key.toLowerCase() === "z" &&
+        !event.shiftKey;
       const isRedo =
         (event.metaKey || event.ctrlKey) &&
-        (event.key.toLowerCase() === "y" || (event.key.toLowerCase() === "z" && event.shiftKey));
+        (event.key.toLowerCase() === "y" ||
+          (event.key.toLowerCase() === "z" && event.shiftKey));
 
       if (!isUndo && !isRedo) {
         return;
@@ -936,7 +1042,9 @@ export function useRhfAutosave<
     };
   }, [options.queue?.enabled, options.queue?.retryOnReconnect]);
 
-  const controller = useMemo<AutosaveController<TFormValues, TPayload, TResult>>(() => {
+  const controller = useMemo<
+    AutosaveController<TFormValues, TPayload, TResult>
+  >(() => {
     return {
       get phase() {
         return store.getState().phase;
@@ -1051,7 +1159,8 @@ export function useRhfAutosave<
         }
 
         const current = cloneDeep(formRef.current.getValues());
-        const previous = historyRef.current.past[historyRef.current.past.length - 2];
+        const previous =
+          historyRef.current.past[historyRef.current.past.length - 2];
         if (!previous) {
           return;
         }

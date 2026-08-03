@@ -8,7 +8,8 @@ export const store = configureStore({
     [employeesApi.reducerPath]: employeesApi.reducer,
     autosaveLogs: autosaveLogsReducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(employeesApi.middleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(employeesApi.middleware),
 });
 
 setupListeners(store.dispatch);

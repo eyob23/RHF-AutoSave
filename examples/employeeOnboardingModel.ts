@@ -1,7 +1,16 @@
-import { createPartitionedTransport, fetchTransport, rtkQueryTransport } from "../src";
+import {
+  createPartitionedTransport,
+  fetchTransport,
+  rtkQueryTransport,
+} from "../src";
 
 export type WorkMode = "remote" | "hybrid" | "onsite";
-export type EquipmentType = "laptop" | "monitor" | "keyboard" | "dock" | "phone";
+export type EquipmentType =
+  | "laptop"
+  | "monitor"
+  | "keyboard"
+  | "dock"
+  | "phone";
 
 export type EmployeeOnboardingFormValues = {
   profile: {
@@ -77,7 +86,9 @@ export type EmploymentPayload = EmployeeOnboardingFormValues["employment"] & {
   equipmentRequests: EmployeeOnboardingFormValues["equipmentRequests"];
 };
 
-export type SaveEmploymentMutation = (payload: EmploymentPayload) => Promise<{ revision: string }>;
+export type SaveEmploymentMutation = (
+  payload: EmploymentPayload,
+) => Promise<{ revision: string }>;
 
 export const defaultEmployeeOnboardingValues: EmployeeOnboardingFormValues = {
   profile: {
@@ -182,17 +193,23 @@ export function createEmployeeOnboardingTransport(
     {
       key: "benefits",
       paths: ["benefits", "dependents", "payroll", "acknowledgements"],
-      transport: fetchTransport(`/api/employees/${employeeId}/benefits-enrollment`, {
-        method: "PUT",
-      }),
+      transport: fetchTransport(
+        `/api/employees/${employeeId}/benefits-enrollment`,
+        {
+          method: "PUT",
+        },
+      ),
       payloadStrategy: "partition",
     },
     {
       key: "emergencyContacts",
       paths: ["emergencyContacts"],
-      transport: fetchTransport(`/api/employees/${employeeId}/emergency-contacts/bulk`, {
-        method: "PUT",
-      }),
+      transport: fetchTransport(
+        `/api/employees/${employeeId}/emergency-contacts/bulk`,
+        {
+          method: "PUT",
+        },
+      ),
       payloadStrategy: "partition",
     },
   ]);

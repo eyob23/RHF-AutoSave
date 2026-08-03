@@ -1,8 +1,10 @@
 import type { FieldValues } from "react-hook-form";
 import type { AutosaveTransport, AutosaveTransportResult } from "../core/types";
 
-export interface FetchTransportOptions<TPayload, TResult = unknown>
-  extends Omit<RequestInit, "body" | "signal"> {
+export interface FetchTransportOptions<
+  TPayload,
+  TResult = unknown,
+> extends Omit<RequestInit, "body" | "signal"> {
   mapBody?: (payload: TPayload) => BodyInit;
   parseResponse?: (response: Response) => Promise<TResult>;
   mapResult?: (
@@ -25,7 +27,9 @@ export function fetchTransport<
       method: options?.method ?? "PATCH",
       ...options,
       signal,
-      body: options?.mapBody ? options.mapBody(payload) : JSON.stringify(payload),
+      body: options?.mapBody
+        ? options.mapBody(payload)
+        : JSON.stringify(payload),
       headers: {
         "Content-Type": "application/json",
         ...(options?.headers ?? {}),
@@ -47,11 +51,15 @@ export function fetchTransport<
     if (!response.ok) {
       return {
         ok: false,
-        error: new Error(`Autosave request failed with status ${response.status}`),
+        error: new Error(
+          `Autosave request failed with status ${response.status}`,
+        ),
         data,
       };
     }
 
-    return options?.mapResult ? options.mapResult(data, response) : { ok: true, data };
+    return options?.mapResult
+      ? options.mapResult(data, response)
+      : { ok: true, data };
   };
 }

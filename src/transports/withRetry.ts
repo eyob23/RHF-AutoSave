@@ -7,11 +7,7 @@ export interface RetryOptions {
   shouldRetry?: (error: unknown, attempt: number) => boolean;
 }
 
-export function withRetry<
-  TFormValues extends FieldValues,
-  TPayload,
-  TResult,
->(
+export function withRetry<TFormValues extends FieldValues, TPayload, TResult>(
   transport: AutosaveTransport<TFormValues, TPayload, TResult>,
   options?: RetryOptions,
 ): AutosaveTransport<TFormValues, TPayload, TResult> {

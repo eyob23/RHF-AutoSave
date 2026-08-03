@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { Link, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  Route,
+  Routes,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { useGlobalAutosaveQuery, useGlobalAutosaveRegistry } from "../src";
 import { WizardDemoPage } from "./WizardDemoPage";
 import {
@@ -30,22 +37,51 @@ function EmployeeForm(props: {
   onSubmit: (values: CreateEmployeeRequest) => Promise<void>;
   onCancel?: () => void;
 }) {
-  const [values, setValues] = useState<CreateEmployeeRequest>(props.initialValues);
+  const [values, setValues] = useState<CreateEmployeeRequest>(
+    props.initialValues,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const update = <TKey extends keyof CreateEmployeeRequest>(key: TKey, value: CreateEmployeeRequest[TKey]) => {
+  const update = <TKey extends keyof CreateEmployeeRequest>(
+    key: TKey,
+    value: CreateEmployeeRequest[TKey],
+  ) => {
     setValues((current) => ({ ...current, [key]: value }));
   };
 
   return (
     <div className="employee-form-card">
       <div className="employee-form-grid">
-        <input value={values.firstName} onChange={(event) => update("firstName", event.target.value)} placeholder="First name" />
-        <input value={values.lastName} onChange={(event) => update("lastName", event.target.value)} placeholder="Last name" />
-        <input value={values.title} onChange={(event) => update("title", event.target.value)} placeholder="Job title" />
-        <input value={values.department} onChange={(event) => update("department", event.target.value)} placeholder="Department" />
-        <input value={values.locationCode} onChange={(event) => update("locationCode", event.target.value)} placeholder="Location code" />
-        <input type="date" value={values.startDate} onChange={(event) => update("startDate", event.target.value)} />
+        <input
+          value={values.firstName}
+          onChange={(event) => update("firstName", event.target.value)}
+          placeholder="First name"
+        />
+        <input
+          value={values.lastName}
+          onChange={(event) => update("lastName", event.target.value)}
+          placeholder="Last name"
+        />
+        <input
+          value={values.title}
+          onChange={(event) => update("title", event.target.value)}
+          placeholder="Job title"
+        />
+        <input
+          value={values.department}
+          onChange={(event) => update("department", event.target.value)}
+          placeholder="Department"
+        />
+        <input
+          value={values.locationCode}
+          onChange={(event) => update("locationCode", event.target.value)}
+          placeholder="Location code"
+        />
+        <input
+          type="date"
+          value={values.startDate}
+          onChange={(event) => update("startDate", event.target.value)}
+        />
       </div>
       <div className="employee-form-actions">
         <button
@@ -64,7 +100,15 @@ function EmployeeForm(props: {
         >
           {isSubmitting ? "Saving..." : props.submitLabel}
         </button>
-        {props.onCancel ? <button type="button" className="secondary-button" onClick={props.onCancel}>Cancel</button> : null}
+        {props.onCancel ? (
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={props.onCancel}
+          >
+            Cancel
+          </button>
+        ) : null}
       </div>
     </div>
   );
@@ -82,14 +126,36 @@ function EmployeeRow(props: { employee: EmployeeSummary }) {
     <article className="employee-row">
       <div className="employee-row-main">
         <div>
-          <h3>{props.employee.firstName} {props.employee.lastName}</h3>
-          <p>{props.employee.title} · {props.employee.department} · {props.employee.locationCode}</p>
+          <h3>
+            {props.employee.firstName} {props.employee.lastName}
+          </h3>
+          <p>
+            {props.employee.title} · {props.employee.department} ·{" "}
+            {props.employee.locationCode}
+          </p>
           <span>Start date: {props.employee.startDate}</span>
         </div>
         <div className="employee-row-actions">
-          <button type="button" className="secondary-button" onClick={() => navigate(`/employees/${props.employee.employeeId}`)}>Read</button>
-          <button type="button" onClick={() => navigate(`/employees/${props.employee.employeeId}/onboarding`)}>Open wizard</button>
-          <button type="button" className="secondary-button" onClick={() => setIsEditing((value) => !value)}>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => navigate(`/employees/${props.employee.employeeId}`)}
+          >
+            Read
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              navigate(`/employees/${props.employee.employeeId}/onboarding`)
+            }
+          >
+            Open wizard
+          </button>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => setIsEditing((value) => !value)}
+          >
             {isEditing ? "Close edit" : "Quick edit"}
           </button>
           <button
@@ -99,7 +165,10 @@ function EmployeeRow(props: { employee: EmployeeSummary }) {
               try {
                 await deleteEmployee(props.employee.employeeId).unwrap();
                 removeEntityState(props.employee.employeeId);
-                pushToast(`Deleted employee ${props.employee.employeeId}`, "success");
+                pushToast(
+                  `Deleted employee ${props.employee.employeeId}`,
+                  "success",
+                );
               } catch {
                 pushToast("Failed to delete employee", "error");
               }
@@ -124,8 +193,14 @@ function EmployeeRow(props: { employee: EmployeeSummary }) {
           onCancel={() => setIsEditing(false)}
           onSubmit={async (values) => {
             try {
-              await updateEmployeeSummary({ employeeId: props.employee.employeeId, ...values }).unwrap();
-              pushToast(`Updated ${values.firstName} ${values.lastName}`, "success");
+              await updateEmployeeSummary({
+                employeeId: props.employee.employeeId,
+                ...values,
+              }).unwrap();
+              pushToast(
+                `Updated ${values.firstName} ${values.lastName}`,
+                "success",
+              );
               setIsEditing(false);
             } catch {
               pushToast("Failed to update employee summary", "error");
@@ -139,20 +214,36 @@ function EmployeeRow(props: { employee: EmployeeSummary }) {
 }
 
 function GlobalSaveStatePanel() {
-  const trackedEntityCount = useGlobalAutosaveQuery((state) => state.trackedEntityCount);
-  const unsavedCount = useGlobalAutosaveQuery((state) => state.unsavedEntityKeys.length);
-  const savingCount = useGlobalAutosaveQuery((state) => state.savingEntityKeys.length);
-  const errorCount = useGlobalAutosaveQuery((state) => state.errorEntityKeys.length);
-  const queuedMutationCount = useGlobalAutosaveQuery((state) => state.queuedMutationCount);
-  const unsavedEmployeeIdsText = useGlobalAutosaveQuery((state) => (
-    state.unsavedEntityKeys.length > 0 ? state.unsavedEntityKeys.join(", ") : "None"
-  ));
-  const queuedEmployeeIdsText = useGlobalAutosaveQuery((state) => (
-    state.queuedEntityKeys.length > 0 ? state.queuedEntityKeys.join(", ") : "None"
-  ));
-  const errorEmployeeIdsText = useGlobalAutosaveQuery((state) => (
-    state.errorEntityKeys.length > 0 ? state.errorEntityKeys.join(", ") : "None"
-  ));
+  const trackedEntityCount = useGlobalAutosaveQuery(
+    (state) => state.trackedEntityCount,
+  );
+  const unsavedCount = useGlobalAutosaveQuery(
+    (state) => state.unsavedEntityKeys.length,
+  );
+  const savingCount = useGlobalAutosaveQuery(
+    (state) => state.savingEntityKeys.length,
+  );
+  const errorCount = useGlobalAutosaveQuery(
+    (state) => state.errorEntityKeys.length,
+  );
+  const queuedMutationCount = useGlobalAutosaveQuery(
+    (state) => state.queuedMutationCount,
+  );
+  const unsavedEmployeeIdsText = useGlobalAutosaveQuery((state) =>
+    state.unsavedEntityKeys.length > 0
+      ? state.unsavedEntityKeys.join(", ")
+      : "None",
+  );
+  const queuedEmployeeIdsText = useGlobalAutosaveQuery((state) =>
+    state.queuedEntityKeys.length > 0
+      ? state.queuedEntityKeys.join(", ")
+      : "None",
+  );
+  const errorEmployeeIdsText = useGlobalAutosaveQuery((state) =>
+    state.errorEntityKeys.length > 0
+      ? state.errorEntityKeys.join(", ")
+      : "None",
+  );
   const hasUnsavedChanges = unsavedCount > 0;
 
   return (
@@ -207,11 +298,21 @@ function GlobalSaveStatePanel() {
 }
 
 function GlobalSaveStateWidget() {
-  const trackedEntityCount = useGlobalAutosaveQuery((state) => state.trackedEntityCount);
-  const unsavedCount = useGlobalAutosaveQuery((state) => state.unsavedEntityKeys.length);
-  const queuedMutationCount = useGlobalAutosaveQuery((state) => state.queuedMutationCount);
-  const savingCount = useGlobalAutosaveQuery((state) => state.savingEntityKeys.length);
-  const errorCount = useGlobalAutosaveQuery((state) => state.errorEntityKeys.length);
+  const trackedEntityCount = useGlobalAutosaveQuery(
+    (state) => state.trackedEntityCount,
+  );
+  const unsavedCount = useGlobalAutosaveQuery(
+    (state) => state.unsavedEntityKeys.length,
+  );
+  const queuedMutationCount = useGlobalAutosaveQuery(
+    (state) => state.queuedMutationCount,
+  );
+  const savingCount = useGlobalAutosaveQuery(
+    (state) => state.savingEntityKeys.length,
+  );
+  const errorCount = useGlobalAutosaveQuery(
+    (state) => state.errorEntityKeys.length,
+  );
   const hasUnsavedChanges = unsavedCount > 0;
 
   const statusAnnouncement = hasUnsavedChanges
@@ -219,34 +320,54 @@ function GlobalSaveStateWidget() {
     : "All tracked entities are saved";
 
   return (
-    <aside className="global-save-widget" role="region" aria-label="Global save state summary">
-      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{statusAnnouncement}</p>
-      <div className="global-save-widget-title">Global Save State</div>
-      <div className="global-save-widget-line">
+    <aside
+      className="global-save-widget"
+      role="region"
+      aria-label="Global save state summary"
+    >
+      <p
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {statusAnnouncement}
-      </div>
+      </p>
+      <div className="global-save-widget-title">Global Save State</div>
+      <div className="global-save-widget-line">{statusAnnouncement}</div>
       <div className="global-save-widget-metrics">
         <span>Tracked: {trackedEntityCount}</span>
         <span>Saving: {savingCount}</span>
         <span>Errors: {errorCount}</span>
       </div>
-      <Link to="/dashboard" className="global-save-widget-link">Open full query</Link>
+      <Link to="/dashboard" className="global-save-widget-link">
+        Open full query
+      </Link>
     </aside>
   );
 }
 
 function GlobalAutosaveLogWidget() {
-  const recentEntries = useSelector((state: RootState) => state.autosaveLogs.entries.slice(0, 6));
+  const recentEntries = useSelector((state: RootState) =>
+    state.autosaveLogs.entries.slice(0, 6),
+  );
 
   return (
-    <aside className="global-log-widget" role="region" aria-label="Global autosave mutation log">
+    <aside
+      className="global-log-widget"
+      role="region"
+      aria-label="Global autosave mutation log"
+    >
       <div className="global-log-widget-title">Autosave Log Stream</div>
       {recentEntries.length === 0 ? (
         <div className="global-log-widget-empty">No events yet.</div>
       ) : (
         <ul className="global-log-widget-list">
           {recentEntries.map((entry) => (
-            <li key={entry.id} className={`global-log-widget-item global-log-widget-item-${entry.level}`}>
+            <li
+              key={entry.id}
+              className={`global-log-widget-item global-log-widget-item-${entry.level}`}
+            >
               <span className="global-log-widget-message">{entry.message}</span>
               <span className="global-log-widget-meta">
                 {entry.entityId ? `entity ${entry.entityId}` : "no entity"}
@@ -278,13 +399,22 @@ function EmployeeDetailsPage() {
           <p>Employee ID: {employeeId}</p>
         </div>
         <div className="employee-row-actions">
-          <Link to="/dashboard" className="ghost-link">Back to dashboard</Link>
-          <Link to={`/employees/${employeeId}/onboarding`} className="primary-link">Open wizard</Link>
+          <Link to="/dashboard" className="ghost-link">
+            Back to dashboard
+          </Link>
+          <Link
+            to={`/employees/${employeeId}/onboarding`}
+            className="primary-link"
+          >
+            Open wizard
+          </Link>
         </div>
       </section>
 
       {isLoading ? (
-        <section className="dashboard-card"><p>Loading employee details...</p></section>
+        <section className="dashboard-card">
+          <p>Loading employee details...</p>
+        </section>
       ) : null}
 
       {!isLoading && data ? (
@@ -292,20 +422,28 @@ function EmployeeDetailsPage() {
           <div className="detail-grid">
             <div className="detail-card">
               <h2>Profile</h2>
-              <p>{data.values.profile.firstName} {data.values.profile.lastName}</p>
+              <p>
+                {data.values.profile.firstName} {data.values.profile.lastName}
+              </p>
               <p>{data.values.profile.personalEmail}</p>
               <p>{data.values.profile.mobilePhone}</p>
             </div>
             <div className="detail-card">
               <h2>Employment</h2>
               <p>{data.values.employment.title}</p>
-              <p>{data.values.employment.department} · {data.values.employment.locationCode}</p>
+              <p>
+                {data.values.employment.department} ·{" "}
+                {data.values.employment.locationCode}
+              </p>
               <p>Work mode: {data.values.employment.workMode}</p>
             </div>
             <div className="detail-card">
               <h2>Address</h2>
               <p>{data.values.address.line1}</p>
-              <p>{data.values.address.city}, {data.values.address.state} {data.values.address.postalCode}</p>
+              <p>
+                {data.values.address.city}, {data.values.address.state}{" "}
+                {data.values.address.postalCode}
+              </p>
               <p>{data.values.address.country}</p>
             </div>
             <div className="detail-card">
@@ -334,10 +472,13 @@ function DashboardPage() {
           <p className="eyebrow">Employee Directory</p>
           <h1>Internal dashboard</h1>
           <p>
-            The demo now persists employee records across reloads and routes each wizard to an explicit employee id.
+            The demo now persists employee records across reloads and routes
+            each wizard to an explicit employee id.
           </p>
         </div>
-        <Link to="/employees/emp-2048/onboarding" className="ghost-link">Open seeded demo employee</Link>
+        <Link to="/employees/emp-2048/onboarding" className="ghost-link">
+          Open seeded demo employee
+        </Link>
       </section>
 
       <section className="dashboard-card dashboard-stack">
@@ -368,13 +509,18 @@ function DashboardPage() {
           <p className="eyebrow">Existing Employees</p>
           <h2>Directory</h2>
           <p>
-            Use the actions below to read, update, and delete employees. The wizard route remains `/employees/:employeeId/onboarding`.
+            Use the actions below to read, update, and delete employees. The
+            wizard route remains `/employees/:employeeId/onboarding`.
           </p>
         </div>
         {isLoading ? <p>Loading employees...</p> : null}
-        {!isLoading && employees.length === 0 ? <p>No employees available.</p> : null}
+        {!isLoading && employees.length === 0 ? (
+          <p>No employees available.</p>
+        ) : null}
         <div className="employee-list">
-          {employees.map((employee) => <EmployeeRow key={employee.employeeId} employee={employee} />)}
+          {employees.map((employee) => (
+            <EmployeeRow key={employee.employeeId} employee={employee} />
+          ))}
         </div>
       </section>
     </main>
@@ -389,8 +535,14 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} />
-        <Route path="/employees/:employeeId/onboarding" element={<WizardDemoPage />} />
+        <Route
+          path="/employees/:employeeId"
+          element={<EmployeeDetailsPage />}
+        />
+        <Route
+          path="/employees/:employeeId/onboarding"
+          element={<WizardDemoPage />}
+        />
       </Routes>
     </>
   );

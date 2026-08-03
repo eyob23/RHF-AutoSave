@@ -1,4 +1,13 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import type { ReactNode } from "react";
 import type {
   AutosaveQueueRecord,
@@ -31,7 +40,9 @@ export interface GlobalAutosaveQueueBootstrapSource<
   TPayload = Partial<TFormValues>,
 > {
   store: Pick<AutosaveQueueStore<TFormValues, TPayload>, "list">;
-  resolveEntityKey: (record: AutosaveQueueRecord<TFormValues, TPayload>) => string | null | undefined;
+  resolveEntityKey: (
+    record: AutosaveQueueRecord<TFormValues, TPayload>,
+  ) => string | null | undefined;
 }
 
 export interface GlobalAutosaveQueueBootstrapOptions {
@@ -49,10 +60,15 @@ interface GlobalAutosaveStateContextValue {
   subscribe: (listener: () => void) => () => void;
 }
 
-const GlobalAutosaveStateContext = createContext<GlobalAutosaveStateContextValue | null>(null);
+const GlobalAutosaveStateContext =
+  createContext<GlobalAutosaveStateContextValue | null>(null);
 
-function buildSummary(records: Record<string, GlobalAutosaveEntitySnapshot>): GlobalAutosaveStateSummary {
-  const entities = Object.values(records).sort((left, right) => right.updatedAt - left.updatedAt);
+function buildSummary(
+  records: Record<string, GlobalAutosaveEntitySnapshot>,
+): GlobalAutosaveStateSummary {
+  const entities = Object.values(records).sort(
+    (left, right) => right.updatedAt - left.updatedAt,
+  );
 
   const unsavedEntityKeys: string[] = [];
   const savingEntityKeys: string[] = [];
@@ -107,14 +123,14 @@ function areEntitySnapshotsEqual(
   }
 
   return (
-    left.entityKey === right.entityKey
-    && left.state.phase === right.state.phase
-    && left.state.isSaving === right.state.isSaving
-    && left.state.hasPendingChanges === right.state.hasPendingChanges
-    && left.state.queuedCount === right.state.queuedCount
-    && left.state.lastSavedAt === right.state.lastSavedAt
-    && left.state.lastAttemptAt === right.state.lastAttemptAt
-    && left.state.lastError?.message === right.state.lastError?.message
+    left.entityKey === right.entityKey &&
+    left.state.phase === right.state.phase &&
+    left.state.isSaving === right.state.isSaving &&
+    left.state.hasPendingChanges === right.state.hasPendingChanges &&
+    left.state.queuedCount === right.state.queuedCount &&
+    left.state.lastSavedAt === right.state.lastSavedAt &&
+    left.state.lastAttemptAt === right.state.lastAttemptAt &&
+    left.state.lastError?.message === right.state.lastError?.message
   );
 }
 
@@ -158,8 +174,8 @@ function areBootstrapSourcesEqual(
     }
 
     if (
-      currentLeft.store !== currentRight.store
-      || currentLeft.resolveEntityKey !== currentRight.resolveEntityKey
+      currentLeft.store !== currentRight.store ||
+      currentLeft.resolveEntityKey !== currentRight.resolveEntityKey
     ) {
       return false;
     }
@@ -169,7 +185,9 @@ function areBootstrapSourcesEqual(
 }
 
 export function GlobalAutosaveStateProvider(props: { children: ReactNode }) {
-  const [records, setRecords] = useState<Record<string, GlobalAutosaveEntitySnapshot>>({});
+  const [records, setRecords] = useState<
+    Record<string, GlobalAutosaveEntitySnapshot>
+  >({});
   const summary = useMemo(() => buildSummary(records), [records]);
   const summaryRef = useRef(summary);
   const listenersRef = useRef(new Set<() => void>());
@@ -181,25 +199,28 @@ export function GlobalAutosaveStateProvider(props: { children: ReactNode }) {
     }
   }, [summary]);
 
-  const upsertEntityState = useCallback((entityKey: string, state: AutosaveState) => {
-    setRecords((current) => {
-      const existing = current[entityKey];
-      const nextSnapshot: GlobalAutosaveEntitySnapshot = {
-        entityKey,
-        state,
-        updatedAt: Date.now(),
-      };
+  const upsertEntityState = useCallback(
+    (entityKey: string, state: AutosaveState) => {
+      setRecords((current) => {
+        const existing = current[entityKey];
+        const nextSnapshot: GlobalAutosaveEntitySnapshot = {
+          entityKey,
+          state,
+          updatedAt: Date.now(),
+        };
 
-      if (areEntitySnapshotsEqual(existing, nextSnapshot)) {
-        return current;
-      }
+        if (areEntitySnapshotsEqual(existing, nextSnapshot)) {
+          return current;
+        }
 
-      return {
-        ...current,
-        [entityKey]: nextSnapshot,
-      };
-    });
-  }, []);
+        return {
+          ...current,
+          [entityKey]: nextSnapshot,
+        };
+      });
+    },
+    [],
+  );
 
   const removeEntityState = useCallback((entityKey: string) => {
     setRecords((current) => {
@@ -213,56 +234,61 @@ export function GlobalAutosaveStateProvider(props: { children: ReactNode }) {
     });
   }, []);
 
-  const bootstrapFromQueue = useCallback(async (
-    sources: GlobalAutosaveQueueBootstrapSource[],
-    options?: GlobalAutosaveQueueBootstrapOptions,
-  ) => {
-    const clearExisting = options?.clearExisting ?? true;
-    const queueCountsByEntityKey = new Map<string, number>();
+  const bootstrapFromQueue = useCallback(
+    async (
+      sources: GlobalAutosaveQueueBootstrapSource[],
+      options?: GlobalAutosaveQueueBootstrapOptions,
+    ) => {
+      const clearExisting = options?.clearExisting ?? true;
+      const queueCountsByEntityKey = new Map<string, number>();
 
-    for (const source of sources) {
-      const recordsFromSource = await source.store.list();
-      for (const record of recordsFromSource) {
-        const entityKey = source.resolveEntityKey(record);
-        if (!entityKey) {
-          continue;
+      for (const source of sources) {
+        const recordsFromSource = await source.store.list();
+        for (const record of recordsFromSource) {
+          const entityKey = source.resolveEntityKey(record);
+          if (!entityKey) {
+            continue;
+          }
+
+          queueCountsByEntityKey.set(
+            entityKey,
+            (queueCountsByEntityKey.get(entityKey) ?? 0) + 1,
+          );
+        }
+      }
+
+      setRecords((current) => {
+        const next: Record<string, GlobalAutosaveEntitySnapshot> = clearExisting
+          ? {}
+          : { ...current };
+        const now = Date.now();
+
+        for (const [entityKey, queuedCount] of queueCountsByEntityKey) {
+          const existing = current[entityKey];
+          const candidate: GlobalAutosaveEntitySnapshot = {
+            entityKey,
+            updatedAt: now,
+            state: {
+              phase: "scheduled",
+              isSaving: false,
+              hasPendingChanges: true,
+              queuedCount,
+              lastSavedAt: existing?.state.lastSavedAt ?? null,
+              lastAttemptAt: existing?.state.lastAttemptAt ?? null,
+              lastError: existing?.state.lastError ?? null,
+            },
+          };
+
+          next[entityKey] = areEntitySnapshotsEqual(existing, candidate)
+            ? (existing as GlobalAutosaveEntitySnapshot)
+            : candidate;
         }
 
-        queueCountsByEntityKey.set(
-          entityKey,
-          (queueCountsByEntityKey.get(entityKey) ?? 0) + 1,
-        );
-      }
-    }
-
-    setRecords((current) => {
-      const next: Record<string, GlobalAutosaveEntitySnapshot> = clearExisting ? {} : { ...current };
-      const now = Date.now();
-
-      for (const [entityKey, queuedCount] of queueCountsByEntityKey) {
-        const existing = current[entityKey];
-        const candidate: GlobalAutosaveEntitySnapshot = {
-          entityKey,
-          updatedAt: now,
-          state: {
-            phase: "scheduled",
-            isSaving: false,
-            hasPendingChanges: true,
-            queuedCount,
-            lastSavedAt: existing?.state.lastSavedAt ?? null,
-            lastAttemptAt: existing?.state.lastAttemptAt ?? null,
-            lastError: existing?.state.lastError ?? null,
-          },
-        };
-
-        next[entityKey] = areEntitySnapshotsEqual(existing, candidate)
-          ? (existing as GlobalAutosaveEntitySnapshot)
-          : candidate;
-      }
-
-      return areRecordMapsEqual(current, next) ? current : next;
-    });
-  }, []);
+        return areRecordMapsEqual(current, next) ? current : next;
+      });
+    },
+    [],
+  );
 
   const subscribe = useCallback((listener: () => void) => {
     listenersRef.current.add(listener);
@@ -281,15 +307,27 @@ export function GlobalAutosaveStateProvider(props: { children: ReactNode }) {
       getSummary,
       subscribe,
     };
-  }, [bootstrapFromQueue, getSummary, removeEntityState, subscribe, upsertEntityState]);
+  }, [
+    bootstrapFromQueue,
+    getSummary,
+    removeEntityState,
+    subscribe,
+    upsertEntityState,
+  ]);
 
-  return <GlobalAutosaveStateContext.Provider value={value}>{props.children}</GlobalAutosaveStateContext.Provider>;
+  return (
+    <GlobalAutosaveStateContext.Provider value={value}>
+      {props.children}
+    </GlobalAutosaveStateContext.Provider>
+  );
 }
 
 export function useGlobalAutosaveRegistry() {
   const context = useContext(GlobalAutosaveStateContext);
   if (!context) {
-    throw new Error("useGlobalAutosaveRegistry must be used within GlobalAutosaveStateProvider");
+    throw new Error(
+      "useGlobalAutosaveRegistry must be used within GlobalAutosaveStateProvider",
+    );
   }
 
   return {
@@ -314,9 +352,9 @@ export function useGlobalAutosaveQueueBootstrap(
     const previous = previousRef.current;
 
     if (
-      previous
-      && previous.clearExisting === clearExisting
-      && areBootstrapSourcesEqual(previous.sources, sources)
+      previous &&
+      previous.clearExisting === clearExisting &&
+      areBootstrapSourcesEqual(previous.sources, sources)
     ) {
       return;
     }
@@ -332,7 +370,9 @@ export function useGlobalAutosaveQuery<TSelection>(
 ): TSelection {
   const context = useContext(GlobalAutosaveStateContext);
   if (!context) {
-    throw new Error("useGlobalAutosaveQuery must be used within GlobalAutosaveStateProvider");
+    throw new Error(
+      "useGlobalAutosaveQuery must be used within GlobalAutosaveStateProvider",
+    );
   }
 
   const selectorRef = useRef(selector);

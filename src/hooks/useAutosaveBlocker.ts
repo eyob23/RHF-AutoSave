@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useBeforeUnload as useRouterBeforeUnload, useLocation, useNavigate } from "react-router-dom";
+import {
+  useBeforeUnload as useRouterBeforeUnload,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 type AutosaveBlockerState = "unblocked" | "blocked";
 
@@ -9,7 +13,11 @@ export interface AutosaveBlockerController {
   reset: () => void;
 }
 
-function locationToPathname(location: { pathname: string; search: string; hash: string }) {
+function locationToPathname(location: {
+  pathname: string;
+  search: string;
+  hash: string;
+}) {
   return `${location.pathname}${location.search}${location.hash}`;
 }
 

@@ -17,5 +17,12 @@
     "rootDir": ".",
     "baseUrl": "."
   },
-  "include": ["src", "tests", "examples", "demo", "vite.config.ts", "vitest.config.ts"]
+  "include": [
+    "src",
+    "tests",
+    "examples",
+    "demo",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ]
 }

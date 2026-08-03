@@ -1,7 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { createIndexedDbQueueStore } from "../src/persistence/indexedDbQueue";
-import { cloneDeep, diffArraysBy, findChangedPaths, isDeepEqual } from "../src/utils/deep";
-import { getByPath, mapNestedKeys, pickPaths, setByPath } from "../src/utils/path";
+import {
+  cloneDeep,
+  diffArraysBy,
+  findChangedPaths,
+  isDeepEqual,
+} from "../src/utils/deep";
+import {
+  getByPath,
+  mapNestedKeys,
+  pickPaths,
+  setByPath,
+} from "../src/utils/path";
 
 describe("utility helpers", () => {
   it("reads and writes nested paths immutably", () => {
@@ -29,11 +39,12 @@ describe("utility helpers", () => {
       },
     };
 
-    expect(pickPaths(values, ["profile.firstName", "settings.subscribed"]))
-      .toEqual({
-        profile: { firstName: "Ada" },
-        settings: { subscribed: true },
-      });
+    expect(
+      pickPaths(values, ["profile.firstName", "settings.subscribed"]),
+    ).toEqual({
+      profile: { firstName: "Ada" },
+      settings: { subscribed: true },
+    });
 
     expect(
       mapNestedKeys(values, {
@@ -54,16 +65,22 @@ describe("utility helpers", () => {
     };
     const after = {
       profile: { firstName: "Ada", lastName: "Byron" },
-      items: [{ id: "1", value: "b" }, { id: "2", value: "c" }],
+      items: [
+        { id: "1", value: "b" },
+        { id: "2", value: "c" },
+      ],
     };
 
-    expect(findChangedPaths(before, after)).toEqual(["profile.lastName", "items"]);
-    expect(
-      diffArraysBy(before.items, after.items, (item) => item.id),
-    ).toEqual({
+    expect(findChangedPaths(before, after)).toEqual([
+      "profile.lastName",
+      "items",
+    ]);
+    expect(diffArraysBy(before.items, after.items, (item) => item.id)).toEqual({
       added: [{ id: "2", value: "c" }],
       removed: [],
-      modified: [{ before: { id: "1", value: "a" }, after: { id: "1", value: "b" } }],
+      modified: [
+        { before: { id: "1", value: "a" }, after: { id: "1", value: "b" } },
+      ],
       hasChanges: true,
     });
     expect(isDeepEqual(cloneDeep(after), after)).toBe(true);

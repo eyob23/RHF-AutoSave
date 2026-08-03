@@ -1,5 +1,9 @@
 import type { FieldValues } from "react-hook-form";
-import type { AutosaveTransport, AutosaveTransportContext, AutosaveTransportResult } from "../core/types";
+import type {
+  AutosaveTransport,
+  AutosaveTransportContext,
+  AutosaveTransportResult,
+} from "../core/types";
 import { normalizePaths, pickPaths } from "../utils/path";
 
 function pathOwns(scope: string, changedPath: string): boolean {
@@ -34,8 +38,12 @@ export interface PartitionTransportRoute<
   key: string;
   paths: string[];
   transport: AutosaveTransport<TFormValues, TPayload, TResult>;
-  shouldHandle?: (routeContext: PartitionRouteContext<TFormValues, TPayload>) => boolean;
-  selectPayload?: (routeContext: PartitionRouteContext<TFormValues, TPayload>) => TPayload;
+  shouldHandle?: (
+    routeContext: PartitionRouteContext<TFormValues, TPayload>,
+  ) => boolean;
+  selectPayload?: (
+    routeContext: PartitionRouteContext<TFormValues, TPayload>,
+  ) => TPayload;
   payloadStrategy?: "changed" | "partition";
 }
 
@@ -54,7 +62,11 @@ export function createPartitionedTransport<
 >(
   routes: Array<PartitionTransportRoute<TFormValues, any, TResult>>,
   options?: PartitionTransportOptions,
-): AutosaveTransport<TFormValues, Partial<TFormValues>, Array<PartitionTransportRouteResult<TResult>>> {
+): AutosaveTransport<
+  TFormValues,
+  Partial<TFormValues>,
+  Array<PartitionTransportRouteResult<TResult>>
+> {
   const unmatchedBehavior = options?.onUnmatchedPaths ?? "error";
 
   return async (context) => {
@@ -64,7 +76,9 @@ export function createPartitionedTransport<
 
     for (const route of routes) {
       const matchedPaths = normalizePaths(
-        allChangedPaths.filter((changedPath) => route.paths.some((scope) => pathOwns(scope, changedPath))),
+        allChangedPaths.filter((changedPath) =>
+          route.paths.some((scope) => pathOwns(scope, changedPath)),
+        ),
       );
 
       if (matchedPaths.length === 0) {
@@ -112,22 +126,33 @@ export function createPartitionedTransport<
 
     if (unmatchedBehavior === "error") {
       const unmatchedPaths = allChangedPaths.filter((changedPath) => {
-        return !routes.some((route) => route.paths.some((scope) => pathOwns(scope, changedPath)));
+        return !routes.some((route) =>
+          route.paths.some((scope) => pathOwns(scope, changedPath)),
+        );
       });
 
       if (unmatchedPaths.length > 0) {
         return {
           ok: false,
-          error: toError(`No partition route matched changed paths: ${unmatchedPaths.join(", ")}`),
+          error: toError(
+            `No partition route matched changed paths: ${unmatchedPaths.join(", ")}`,
+          ),
           data: results,
         };
       }
     }
 
-    if (results.length === 0 && allChangedPaths.length > 0 && touchedRouteKeys.size === 0 && unmatchedBehavior === "error") {
+    if (
+      results.length === 0 &&
+      allChangedPaths.length > 0 &&
+      touchedRouteKeys.size === 0 &&
+      unmatchedBehavior === "error"
+    ) {
       return {
         ok: false,
-        error: toError("Partitioned transport received changes but no route executed."),
+        error: toError(
+          "Partitioned transport received changes but no route executed.",
+        ),
       };
     }
 

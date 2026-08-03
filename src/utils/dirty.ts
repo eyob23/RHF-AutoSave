@@ -6,6 +6,9 @@ export function buildDirtyTree(paths: string[]): Record<string, unknown> {
   }, {});
 }
 
-export function selectDirtyPayload<TValue>(values: TValue, paths: string[]): Partial<TValue> {
+export function selectDirtyPayload<TValue>(
+  values: TValue,
+  paths: string[],
+): Partial<TValue> {
   return pickPaths(values, paths);
 }

@@ -15,7 +15,10 @@ const autosaveLogsSlice = createSlice({
   name: "autosaveLogs",
   initialState,
   reducers: {
-    autosaveLogAdded: (state, action: PayloadAction<AutosaveMutationLogEntry>) => {
+    autosaveLogAdded: (
+      state,
+      action: PayloadAction<AutosaveMutationLogEntry>,
+    ) => {
       state.entries.unshift(action.payload);
       if (state.entries.length > MAX_LOG_ENTRIES) {
         state.entries.length = MAX_LOG_ENTRIES;
@@ -27,5 +30,6 @@ const autosaveLogsSlice = createSlice({
   },
 });
 
-export const { autosaveLogAdded, autosaveLogsCleared } = autosaveLogsSlice.actions;
+export const { autosaveLogAdded, autosaveLogsCleared } =
+  autosaveLogsSlice.actions;
 export const autosaveLogsReducer = autosaveLogsSlice.reducer;

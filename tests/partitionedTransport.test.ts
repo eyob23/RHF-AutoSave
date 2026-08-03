@@ -3,8 +3,14 @@ import { createPartitionedTransport } from "../src/transports/partitionedTranspo
 
 describe("createPartitionedTransport", () => {
   it("routes changed paths to their owning endpoints with partition payloads", async () => {
-    const profileTransport = vi.fn(async ({ payload }) => ({ ok: true, data: payload }));
-    const employmentTransport = vi.fn(async ({ payload }) => ({ ok: true, data: payload }));
+    const profileTransport = vi.fn(async ({ payload }) => ({
+      ok: true,
+      data: payload,
+    }));
+    const employmentTransport = vi.fn(async ({ payload }) => ({
+      ok: true,
+      data: payload,
+    }));
 
     const transport = createPartitionedTransport([
       {
@@ -53,13 +59,19 @@ describe("createPartitionedTransport", () => {
     expect(employmentTransport).toHaveBeenCalledWith(
       expect.objectContaining({
         changedPaths: ["equipmentRequests[0].type"],
-        payload: { employment: { title: "Architect" }, equipmentRequests: [{ id: "eq-1", type: "monitor" }] },
+        payload: {
+          employment: { title: "Architect" },
+          equipmentRequests: [{ id: "eq-1", type: "monitor" }],
+        },
       }),
     );
   });
 
   it("supports changed-path-only payload selection for patch-style endpoints", async () => {
-    const transportSpy = vi.fn(async ({ payload }) => ({ ok: true, data: payload }));
+    const transportSpy = vi.fn(async ({ payload }) => ({
+      ok: true,
+      data: payload,
+    }));
     const transport = createPartitionedTransport([
       {
         key: "profilePatch",
@@ -95,7 +107,10 @@ describe("createPartitionedTransport", () => {
   });
 
   it("fails fast when a changed path has no owning route", async () => {
-    const transportSpy = vi.fn(async ({ payload }) => ({ ok: true, data: payload }));
+    const transportSpy = vi.fn(async ({ payload }) => ({
+      ok: true,
+      data: payload,
+    }));
     const transport = createPartitionedTransport([
       {
         key: "profile",

@@ -10,7 +10,9 @@ export interface IndexedDbQueueStoreOptions {
 export function createIndexedDbQueueStore<
   TFormValues extends FieldValues,
   TPayload = Partial<TFormValues>,
->(options?: IndexedDbQueueStoreOptions): AutosaveQueueStore<TFormValues, TPayload> {
+>(
+  options?: IndexedDbQueueStoreOptions,
+): AutosaveQueueStore<TFormValues, TPayload> {
   const databaseName = options?.databaseName ?? "rhf-autosave";
   const storeName = options?.storeName ?? "queue";
 
@@ -35,7 +37,9 @@ export function createIndexedDbQueueStore<
     },
     list: async () => {
       const database = await databasePromise;
-      return (await database.getAll(storeName)) as Array<AutosaveQueueRecord<TFormValues, TPayload>>;
+      return (await database.getAll(storeName)) as Array<
+        AutosaveQueueRecord<TFormValues, TPayload>
+      >;
     },
     remove: async (id: string) => {
       const tx = await transaction();

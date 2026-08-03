@@ -1,5 +1,10 @@
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
-import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
+import {
+  FormProvider,
+  useFieldArray,
+  useForm,
+  useFormContext,
+} from "react-hook-form";
 import { useLocation, useSearchParams } from "react-router-dom";
 import {
   AutosaveMutationLog,
@@ -47,14 +52,29 @@ function ProfileStep() {
 
   return (
     <section className="wizard-step">
-      <StepHeader title="Profile" description="Identity, start-date, and personal contact information." />
+      <StepHeader
+        title="Profile"
+        description="Identity, start-date, and personal contact information."
+      />
       <div className="wizard-grid-2">
-        <Field label="First name"><input {...register("profile.firstName")} /></Field>
-        <Field label="Last name"><input {...register("profile.lastName")} /></Field>
-        <Field label="Preferred name"><input {...register("profile.preferredName")} /></Field>
-        <Field label="Birth date"><input type="date" {...register("profile.birthDate")} /></Field>
-        <Field label="Personal email"><input type="email" {...register("profile.personalEmail")} /></Field>
-        <Field label="Mobile phone"><input type="tel" {...register("profile.mobilePhone")} /></Field>
+        <Field label="First name">
+          <input {...register("profile.firstName")} />
+        </Field>
+        <Field label="Last name">
+          <input {...register("profile.lastName")} />
+        </Field>
+        <Field label="Preferred name">
+          <input {...register("profile.preferredName")} />
+        </Field>
+        <Field label="Birth date">
+          <input type="date" {...register("profile.birthDate")} />
+        </Field>
+        <Field label="Personal email">
+          <input type="email" {...register("profile.personalEmail")} />
+        </Field>
+        <Field label="Mobile phone">
+          <input type="tel" {...register("profile.mobilePhone")} />
+        </Field>
         <Field label="Citizenship status">
           <select {...register("profile.citizenshipStatus")}>
             <option value="citizen">Citizen</option>
@@ -62,16 +82,33 @@ function ProfileStep() {
             <option value="visa">Visa</option>
           </select>
         </Field>
-        <Field label="Start date"><input type="date" {...register("profile.startDate")} /></Field>
+        <Field label="Start date">
+          <input type="date" {...register("profile.startDate")} />
+        </Field>
       </div>
-      <StepHeader title="Address" description="Home address used for payroll and employment records." />
+      <StepHeader
+        title="Address"
+        description="Home address used for payroll and employment records."
+      />
       <div className="wizard-grid-2">
-        <Field label="Line 1"><input {...register("address.line1")} /></Field>
-        <Field label="Line 2"><input {...register("address.line2")} /></Field>
-        <Field label="City"><input {...register("address.city")} /></Field>
-        <Field label="State"><input {...register("address.state")} /></Field>
-        <Field label="Postal code"><input {...register("address.postalCode")} /></Field>
-        <Field label="Country"><input {...register("address.country")} /></Field>
+        <Field label="Line 1">
+          <input {...register("address.line1")} />
+        </Field>
+        <Field label="Line 2">
+          <input {...register("address.line2")} />
+        </Field>
+        <Field label="City">
+          <input {...register("address.city")} />
+        </Field>
+        <Field label="State">
+          <input {...register("address.state")} />
+        </Field>
+        <Field label="Postal code">
+          <input {...register("address.postalCode")} />
+        </Field>
+        <Field label="Country">
+          <input {...register("address.country")} />
+        </Field>
       </div>
     </section>
   );
@@ -83,18 +120,55 @@ function EmploymentStep() {
 
   return (
     <section className="wizard-step">
-      <StepHeader title="Employment" description="Role assignment, compensation, and workstation requests." />
+      <StepHeader
+        title="Employment"
+        description="Role assignment, compensation, and workstation requests."
+      />
       <div className="wizard-grid-2">
-        <Field label="Job title"><input {...register("employment.title")} /></Field>
-        <Field label="Department"><input {...register("employment.department")} /></Field>
-        <Field label="Manager ID"><input {...register("employment.managerId")} /></Field>
-        <Field label="Location code"><input {...register("employment.locationCode")} /></Field>
-        <Field label="Base salary"><input type="number" {...register("employment.salary", { valueAsNumber: true })} /></Field>
+        <Field label="Job title">
+          <input {...register("employment.title")} />
+        </Field>
+        <Field label="Department">
+          <input {...register("employment.department")} />
+        </Field>
+        <Field label="Manager ID">
+          <input {...register("employment.managerId")} />
+        </Field>
+        <Field label="Location code">
+          <input {...register("employment.locationCode")} />
+        </Field>
+        <Field label="Base salary">
+          <input
+            type="number"
+            {...register("employment.salary", { valueAsNumber: true })}
+          />
+        </Field>
         <Field label="Work mode">
           <div className="wizard-choice-row">
-            <label><input type="radio" value="remote" {...register("employment.workMode")} /> Remote</label>
-            <label><input type="radio" value="hybrid" {...register("employment.workMode")} /> Hybrid</label>
-            <label><input type="radio" value="onsite" {...register("employment.workMode")} /> Onsite</label>
+            <label>
+              <input
+                type="radio"
+                value="remote"
+                {...register("employment.workMode")}
+              />{" "}
+              Remote
+            </label>
+            <label>
+              <input
+                type="radio"
+                value="hybrid"
+                {...register("employment.workMode")}
+              />{" "}
+              Hybrid
+            </label>
+            <label>
+              <input
+                type="radio"
+                value="onsite"
+                {...register("employment.workMode")}
+              />{" "}
+              Onsite
+            </label>
           </div>
         </Field>
         <Field label="Bonus eligible">
@@ -105,9 +179,15 @@ function EmploymentStep() {
         </Field>
       </div>
 
-      <StepHeader title="Equipment requests" description="Dynamic line items routed to the employment provisioning endpoint." />
+      <StepHeader
+        title="Equipment requests"
+        description="Dynamic line items routed to the employment provisioning endpoint."
+      />
       {equipment.fields.map((field, index) => (
-        <div key={field.id} className="wizard-collection-row wizard-collection-row-equipment">
+        <div
+          key={field.id}
+          className="wizard-collection-row wizard-collection-row-equipment"
+        >
           <Field label="Type">
             <select {...register(`equipmentRequests.${index}.type`)}>
               <option value="laptop">Laptop</option>
@@ -117,8 +197,15 @@ function EmploymentStep() {
               <option value="phone">Phone</option>
             </select>
           </Field>
-          <Field label="Justification"><input {...register(`equipmentRequests.${index}.justification`)} /></Field>
-          <Field label="Required by"><input type="date" {...register(`equipmentRequests.${index}.requiredBy`)} /></Field>
+          <Field label="Justification">
+            <input {...register(`equipmentRequests.${index}.justification`)} />
+          </Field>
+          <Field label="Required by">
+            <input
+              type="date"
+              {...register(`equipmentRequests.${index}.requiredBy`)}
+            />
+          </Field>
           <button
             type="button"
             onClick={() => equipment.remove(index)}
@@ -152,7 +239,10 @@ function BenefitsStep() {
 
   return (
     <section className="wizard-step">
-      <StepHeader title="Benefits and payroll" description="Plan enrollment, dependents, and payroll configuration." />
+      <StepHeader
+        title="Benefits and payroll"
+        description="Plan enrollment, dependents, and payroll configuration."
+      />
       <div className="wizard-grid-2">
         <Field label="Medical plan">
           <select {...register("benefits.medicalPlan")}>
@@ -170,21 +260,46 @@ function BenefitsStep() {
             <option value="xl">XL</option>
           </select>
         </Field>
-        <Field label="Dental"><input type="checkbox" {...register("benefits.dental")} /></Field>
-        <Field label="Vision"><input type="checkbox" {...register("benefits.vision")} /></Field>
-        <Field label="Tax ID"><input {...register("payroll.taxId")} /></Field>
-        <Field label="Bank name"><input {...register("payroll.bankName")} /></Field>
-        <Field label="Account last 4"><input {...register("payroll.accountLast4")} /></Field>
+        <Field label="Dental">
+          <input type="checkbox" {...register("benefits.dental")} />
+        </Field>
+        <Field label="Vision">
+          <input type="checkbox" {...register("benefits.vision")} />
+        </Field>
+        <Field label="Tax ID">
+          <input {...register("payroll.taxId")} />
+        </Field>
+        <Field label="Bank name">
+          <input {...register("payroll.bankName")} />
+        </Field>
+        <Field label="Account last 4">
+          <input {...register("payroll.accountLast4")} />
+        </Field>
         <Field label="Retirement contribution %">
-          <input type="number" {...register("payroll.retirementContributionPct", { valueAsNumber: true })} />
+          <input
+            type="number"
+            {...register("payroll.retirementContributionPct", {
+              valueAsNumber: true,
+            })}
+          />
         </Field>
       </div>
 
-      <StepHeader title="Dependents" description="Complex array payload routed with benefits enrollment." />
+      <StepHeader
+        title="Dependents"
+        description="Complex array payload routed with benefits enrollment."
+      />
       {dependents.fields.map((field, index) => (
-        <div key={field.id} className="wizard-collection-row wizard-collection-row-dependents">
-          <Field label="First name"><input {...register(`dependents.${index}.firstName`)} /></Field>
-          <Field label="Last name"><input {...register(`dependents.${index}.lastName`)} /></Field>
+        <div
+          key={field.id}
+          className="wizard-collection-row wizard-collection-row-dependents"
+        >
+          <Field label="First name">
+            <input {...register(`dependents.${index}.firstName`)} />
+          </Field>
+          <Field label="Last name">
+            <input {...register(`dependents.${index}.lastName`)} />
+          </Field>
           <Field label="Relationship">
             <select {...register(`dependents.${index}.relationship`)}>
               <option value="child">Child</option>
@@ -192,9 +307,22 @@ function BenefitsStep() {
               <option value="domestic_partner">Domestic partner</option>
             </select>
           </Field>
-          <Field label="Birth date"><input type="date" {...register(`dependents.${index}.birthDate`)} /></Field>
-          <Field label="Covered"><input type="checkbox" {...register(`dependents.${index}.covered`)} /></Field>
-          <button type="button" onClick={() => dependents.remove(index)} className="wizard-row-action">Remove</button>
+          <Field label="Birth date">
+            <input type="date" {...register(`dependents.${index}.birthDate`)} />
+          </Field>
+          <Field label="Covered">
+            <input
+              type="checkbox"
+              {...register(`dependents.${index}.covered`)}
+            />
+          </Field>
+          <button
+            type="button"
+            onClick={() => dependents.remove(index)}
+            className="wizard-row-action"
+          >
+            Remove
+          </button>
         </div>
       ))}
       <button
@@ -223,15 +351,46 @@ function ContactsStep() {
 
   return (
     <section className="wizard-step">
-      <StepHeader title="Emergency contacts" description="Dedicated collection endpoint with primary contact flags." />
+      <StepHeader
+        title="Emergency contacts"
+        description="Dedicated collection endpoint with primary contact flags."
+      />
       {contacts.fields.map((field, index) => (
-        <div key={field.id} className="wizard-collection-row wizard-collection-row-contacts">
-          <Field label="Name"><input {...register(`emergencyContacts.${index}.name`)} /></Field>
-          <Field label="Relationship"><input {...register(`emergencyContacts.${index}.relationship`)} /></Field>
-          <Field label="Phone"><input type="tel" {...register(`emergencyContacts.${index}.phone`)} /></Field>
-          <Field label="Email"><input type="email" {...register(`emergencyContacts.${index}.email`)} /></Field>
-          <Field label="Primary"><input type="checkbox" {...register(`emergencyContacts.${index}.primary`)} /></Field>
-          <button type="button" onClick={() => contacts.remove(index)} className="wizard-row-action">Remove</button>
+        <div
+          key={field.id}
+          className="wizard-collection-row wizard-collection-row-contacts"
+        >
+          <Field label="Name">
+            <input {...register(`emergencyContacts.${index}.name`)} />
+          </Field>
+          <Field label="Relationship">
+            <input {...register(`emergencyContacts.${index}.relationship`)} />
+          </Field>
+          <Field label="Phone">
+            <input
+              type="tel"
+              {...register(`emergencyContacts.${index}.phone`)}
+            />
+          </Field>
+          <Field label="Email">
+            <input
+              type="email"
+              {...register(`emergencyContacts.${index}.email`)}
+            />
+          </Field>
+          <Field label="Primary">
+            <input
+              type="checkbox"
+              {...register(`emergencyContacts.${index}.primary`)}
+            />
+          </Field>
+          <button
+            type="button"
+            onClick={() => contacts.remove(index)}
+            className="wizard-row-action"
+          >
+            Remove
+          </button>
         </div>
       ))}
       <button
@@ -251,11 +410,32 @@ function ContactsStep() {
         Add emergency contact
       </button>
 
-      <StepHeader title="Acknowledgements" description="Required confirmations saved with benefits and compliance state." />
+      <StepHeader
+        title="Acknowledgements"
+        description="Required confirmations saved with benefits and compliance state."
+      />
       <div className="wizard-check-grid">
-        <label><input type="checkbox" {...register("acknowledgements.handbookAccepted")} /> Employee handbook accepted</label>
-        <label><input type="checkbox" {...register("acknowledgements.dataPolicyAccepted")} /> Data policy accepted</label>
-        <label><input type="checkbox" {...register("acknowledgements.codeOfConductAccepted")} /> Code of conduct accepted</label>
+        <label>
+          <input
+            type="checkbox"
+            {...register("acknowledgements.handbookAccepted")}
+          />{" "}
+          Employee handbook accepted
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            {...register("acknowledgements.dataPolicyAccepted")}
+          />{" "}
+          Data policy accepted
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            {...register("acknowledgements.codeOfConductAccepted")}
+          />{" "}
+          Code of conduct accepted
+        </label>
       </div>
     </section>
   );
@@ -313,7 +493,11 @@ const WizardContentCard = memo(function WizardContentCard(props: {
         <button
           className="wizard-primary-action"
           type="button"
-          onClick={() => props.onStepChange((value) => Math.min(props.stepCount - 1, value + 1))}
+          onClick={() =>
+            props.onStepChange((value) =>
+              Math.min(props.stepCount - 1, value + 1),
+            )
+          }
           disabled={props.stepIndex === props.stepCount - 1}
         >
           Next
@@ -333,7 +517,11 @@ function WizardStatus(props: {
       </div>
 
       <div className="wizard-status-section">
-        <AutosaveMutationLog controller={props.autosave} title="Mutation log" maxItems={12} />
+        <AutosaveMutationLog
+          controller={props.autosave}
+          title="Mutation log"
+          maxItems={12}
+        />
       </div>
     </aside>
   );
@@ -342,7 +530,10 @@ function WizardStatus(props: {
 function WizardAutosaveBlocker(props: {
   autosave: ReturnType<typeof useRhfAutosave<EmployeeOnboardingFormValues>>;
 }) {
-  const hasPendingChanges = useAutosaveSelector(props.autosave, (state) => state.hasPendingChanges);
+  const hasPendingChanges = useAutosaveSelector(
+    props.autosave,
+    (state) => state.hasPendingChanges,
+  );
   useAutosaveBlocker(
     hasPendingChanges,
     "You have unsaved onboarding changes. Select Cancel to stay and continue editing, or OK to leave without saving.",
@@ -358,8 +549,14 @@ function WizardNav(props: {
   setStepIndex: React.Dispatch<React.SetStateAction<number>>;
 }) {
   // Subscribe locally so autosave updates rerender only navigation, not the whole form shell.
-  const isSaving = useAutosaveSelector(props.autosave, (state) => state.isSaving);
-  const hasPendingChanges = useAutosaveSelector(props.autosave, (state) => state.hasPendingChanges);
+  const isSaving = useAutosaveSelector(
+    props.autosave,
+    (state) => state.isSaving,
+  );
+  const hasPendingChanges = useAutosaveSelector(
+    props.autosave,
+    (state) => state.hasPendingChanges,
+  );
 
   return (
     <nav className="wizard-nav">
@@ -373,16 +570,36 @@ function WizardNav(props: {
           {step.label}
         </button>
       ))}
-      <button className="wizard-primary-action" type="button" onClick={() => void props.autosave.flush()} disabled={isSaving}>
+      <button
+        className="wizard-primary-action"
+        type="button"
+        onClick={() => void props.autosave.flush()}
+        disabled={isSaving}
+      >
         Save now
       </button>
-      <button className="wizard-secondary-action" type="button" onClick={() => props.autosave.undo()} disabled={!props.autosave.canUndo || isSaving}>
+      <button
+        className="wizard-secondary-action"
+        type="button"
+        onClick={() => props.autosave.undo()}
+        disabled={!props.autosave.canUndo || isSaving}
+      >
         Undo change
       </button>
-      <button className="wizard-secondary-action" type="button" onClick={() => props.autosave.redo()} disabled={!props.autosave.canRedo || isSaving}>
+      <button
+        className="wizard-secondary-action"
+        type="button"
+        onClick={() => props.autosave.redo()}
+        disabled={!props.autosave.canRedo || isSaving}
+      >
         Redo change
       </button>
-      <button className="wizard-secondary-action" type="button" onClick={() => props.autosave.undoLastSave()} disabled={!hasPendingChanges}>
+      <button
+        className="wizard-secondary-action"
+        type="button"
+        onClick={() => props.autosave.undoLastSave()}
+        disabled={!hasPendingChanges}
+      >
         Revert to last save
       </button>
     </nav>
@@ -390,19 +607,52 @@ function WizardNav(props: {
 }
 
 function resolveOnboardingEndpoint(changedPaths: string[]) {
-  if (changedPaths.some((path) => path === "profile" || path.startsWith("profile.") || path === "address" || path.startsWith("address."))) {
+  if (
+    changedPaths.some(
+      (path) =>
+        path === "profile" ||
+        path.startsWith("profile.") ||
+        path === "address" ||
+        path.startsWith("address."),
+    )
+  ) {
     return "profile";
   }
 
-  if (changedPaths.some((path) => path === "employment" || path.startsWith("employment.") || path === "equipmentRequests" || path.startsWith("equipmentRequests."))) {
+  if (
+    changedPaths.some(
+      (path) =>
+        path === "employment" ||
+        path.startsWith("employment.") ||
+        path === "equipmentRequests" ||
+        path.startsWith("equipmentRequests."),
+    )
+  ) {
     return "employment";
   }
 
-  if (changedPaths.some((path) => path === "benefits" || path.startsWith("benefits.") || path === "dependents" || path.startsWith("dependents.") || path === "payroll" || path.startsWith("payroll.") || path === "acknowledgements" || path.startsWith("acknowledgements."))) {
+  if (
+    changedPaths.some(
+      (path) =>
+        path === "benefits" ||
+        path.startsWith("benefits.") ||
+        path === "dependents" ||
+        path.startsWith("dependents.") ||
+        path === "payroll" ||
+        path.startsWith("payroll.") ||
+        path === "acknowledgements" ||
+        path.startsWith("acknowledgements."),
+    )
+  ) {
     return "benefits";
   }
 
-  if (changedPaths.some((path) => path === "emergencyContacts" || path.startsWith("emergencyContacts."))) {
+  if (
+    changedPaths.some(
+      (path) =>
+        path === "emergencyContacts" || path.startsWith("emergencyContacts."),
+    )
+  ) {
     return "emergencyContacts";
   }
 
@@ -462,12 +712,16 @@ function EmployeeOnboardingWizardInner(props: {
   onAutosaveSaved?: () => void;
   onAutosaveError?: (error: Error) => void;
   onAutosaveStateChange?: (state: AutosaveState) => void;
-  onAutosaveLog?: (entry: AutosaveMutationLogEntry<Partial<EmployeeOnboardingFormValues>>) => void;
+  onAutosaveLog?: (
+    entry: AutosaveMutationLogEntry<Partial<EmployeeOnboardingFormValues>>,
+  ) => void;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const previousEmployeeIdRef = useRef<string | null>(null);
-  const previousInitialValuesRef = useRef<EmployeeOnboardingFormValues | null>(null);
+  const previousInitialValuesRef = useRef<EmployeeOnboardingFormValues | null>(
+    null,
+  );
   const previousLastSavedAtRef = useRef<number | null>(null);
   const previousErrorRef = useRef<string | null>(null);
   const hasUserInteractedRef = useRef(false);
@@ -478,30 +732,42 @@ function EmployeeOnboardingWizardInner(props: {
   const steps = WIZARD_STEP_CONFIG;
   const stepKeys = WIZARD_STEP_KEYS;
   const tabParam = searchParams.get("tab");
-  const stepIndex = tabParam ? stepKeys.indexOf(tabParam as (typeof stepKeys)[number]) : -1;
+  const stepIndex = tabParam
+    ? stepKeys.indexOf(tabParam as (typeof stepKeys)[number])
+    : -1;
   const resolvedStepIndex = stepIndex >= 0 ? stepIndex : 0;
-  const resolvedInitialValues = props.initialValues ?? defaultEmployeeOnboardingValues;
+  const resolvedInitialValues =
+    props.initialValues ?? defaultEmployeeOnboardingValues;
 
-  const setStepIndex = useCallback((updater: React.SetStateAction<number>) => {
-    const nextIndex = typeof updater === "function"
-      ? updater(resolvedStepIndex)
-      : updater;
+  const setStepIndex = useCallback(
+    (updater: React.SetStateAction<number>) => {
+      const nextIndex =
+        typeof updater === "function" ? updater(resolvedStepIndex) : updater;
 
-    const clamped = Math.min(Math.max(nextIndex, 0), steps.length - 1);
-    const nextKey = stepKeys[clamped] ?? stepKeys[0];
-    if (!nextKey) {
-      return;
-    }
+      const clamped = Math.min(Math.max(nextIndex, 0), steps.length - 1);
+      const nextKey = stepKeys[clamped] ?? stepKeys[0];
+      if (!nextKey) {
+        return;
+      }
 
-    const nextParams = new URLSearchParams(location.search);
-    nextParams.set("tab", nextKey);
-    setSearchParams(nextParams);
-  }, [location.search, resolvedStepIndex, setSearchParams, stepKeys, steps.length]);
+      const nextParams = new URLSearchParams(location.search);
+      nextParams.set("tab", nextKey);
+      setSearchParams(nextParams);
+    },
+    [
+      location.search,
+      resolvedStepIndex,
+      setSearchParams,
+      stepKeys,
+      steps.length,
+    ],
+  );
 
   useEffect(() => {
     const employeeChanged = previousEmployeeIdRef.current !== props.employeeId;
-    const initialValuesChanged = previousInitialValuesRef.current === null
-      || !isDeepEqual(previousInitialValuesRef.current, resolvedInitialValues);
+    const initialValuesChanged =
+      previousInitialValuesRef.current === null ||
+      !isDeepEqual(previousInitialValuesRef.current, resolvedInitialValues);
 
     if (!employeeChanged && !initialValuesChanged) {
       return;
@@ -526,7 +792,11 @@ function EmployeeOnboardingWizardInner(props: {
   }, [form.formState.isDirty]);
 
   const transport = useMemo(
-    () => createEmployeeOnboardingTransport(props.employeeId, props.saveEmploymentMutation),
+    () =>
+      createEmployeeOnboardingTransport(
+        props.employeeId,
+        props.saveEmploymentMutation,
+      ),
     [props.employeeId, props.saveEmploymentMutation],
   );
 
@@ -544,10 +814,10 @@ function EmployeeOnboardingWizardInner(props: {
 
       const nextSavedAt = state.lastSavedAt ?? null;
       if (
-        hasUserInteractedRef.current
-        && state.phase === "saved"
-        && nextSavedAt
-        && previousLastSavedAtRef.current !== nextSavedAt
+        hasUserInteractedRef.current &&
+        state.phase === "saved" &&
+        nextSavedAt &&
+        previousLastSavedAtRef.current !== nextSavedAt
       ) {
         previousLastSavedAtRef.current = nextSavedAt;
         props.onAutosaveSaved?.();
@@ -555,10 +825,10 @@ function EmployeeOnboardingWizardInner(props: {
 
       const nextErrorMessage = state.lastError?.message ?? null;
       if (
-        hasUserInteractedRef.current
-        && state.phase === "error"
-        && state.lastError
-        && previousErrorRef.current !== nextErrorMessage
+        hasUserInteractedRef.current &&
+        state.phase === "error" &&
+        state.lastError &&
+        previousErrorRef.current !== nextErrorMessage
       ) {
         previousErrorRef.current = nextErrorMessage;
         props.onAutosaveError?.(state.lastError);
@@ -588,7 +858,11 @@ function EmployeeOnboardingWizardInner(props: {
       enabled: true,
       getKey: ({ values, changedPaths }) => {
         const endpoint = resolveOnboardingEndpoint(changedPaths);
-        const primaryId = resolvePrimaryObjectId(values, changedPaths, props.employeeId);
+        const primaryId = resolvePrimaryObjectId(
+          values,
+          changedPaths,
+          props.employeeId,
+        );
         return `${endpoint}:${primaryId}`;
       },
       changedPathsStrategy: "union",

@@ -97,7 +97,10 @@ describe("useRhfAutosave", () => {
   });
 
   it("autosaves dirty fields after the debounce window", async () => {
-    const transport = vi.fn(async ({ payload }) => ({ ok: true, data: payload }));
+    const transport = vi.fn(async ({ payload }) => ({
+      ok: true,
+      data: payload,
+    }));
     const { result } = renderHook(() => useHarness(transport));
 
     act(() => {
@@ -148,7 +151,10 @@ describe("useRhfAutosave", () => {
   });
 
   it("supports external mutation log sink when configured", async () => {
-    const transport = vi.fn(async ({ payload }) => ({ ok: true, data: payload }));
+    const transport = vi.fn(async ({ payload }) => ({
+      ok: true,
+      data: payload,
+    }));
     const onLog = vi.fn();
 
     const { result } = renderHook(() =>
@@ -205,7 +211,9 @@ describe("useRhfAutosave", () => {
     expect(transport).toHaveBeenCalledTimes(2);
     expect(result.current.autosave.queuedCount).toBe(0);
 
-    const latestSuccess = result.current.autosave.getMutationLog().find((entry) => entry.level === "success");
+    const latestSuccess = result.current.autosave
+      .getMutationLog()
+      .find((entry) => entry.level === "success");
     expect(latestSuccess).toBeDefined();
     expect(latestSuccess?.retryCount).toBe(1);
   });
@@ -235,10 +243,12 @@ describe("useRhfAutosave", () => {
       count: vi.fn(async () => 2),
     };
 
-    const transport = vi.fn(async ({ payload }: { payload: Partial<FormValues> }) => {
-      replayOrder.push(String(payload.name ?? ""));
-      return { ok: true };
-    });
+    const transport = vi.fn(
+      async ({ payload }: { payload: Partial<FormValues> }) => {
+        replayOrder.push(String(payload.name ?? ""));
+        return { ok: true };
+      },
+    );
 
     const { result } = renderHook(() =>
       useHarness(transport, {
@@ -300,7 +310,10 @@ describe("useRhfAutosave", () => {
 
     const replayEntry = result.current.autosave
       .getMutationLog()
-      .find((entry) => entry.reason === "replay" && entry.message.includes("Replay queue"));
+      .find(
+        (entry) =>
+          entry.reason === "replay" && entry.message.includes("Replay queue"),
+      );
 
     expect(replayEntry?.level).toBe("error");
     expect(replayEntry?.message).toContain("partially processed");
@@ -309,7 +322,10 @@ describe("useRhfAutosave", () => {
 
   it("runs array diff handlers and excludes handled paths from the transport payload", async () => {
     const onAdd = vi.fn(async () => undefined);
-    const transport = vi.fn(async ({ payload }) => ({ ok: true, data: payload }));
+    const transport = vi.fn(async ({ payload }) => ({
+      ok: true,
+      data: payload,
+    }));
 
     const { result } = renderHook(() =>
       useHarness(transport, {
@@ -323,7 +339,9 @@ describe("useRhfAutosave", () => {
     );
 
     act(() => {
-      result.current.form.setValue("items", [{ id: "1", label: "One" }], { shouldDirty: true });
+      result.current.form.setValue("items", [{ id: "1", label: "One" }], {
+        shouldDirty: true,
+      });
     });
 
     await flushTimers();
@@ -334,7 +352,10 @@ describe("useRhfAutosave", () => {
   });
 
   it("keeps array payload when diff map only provides idOf", async () => {
-    const transport = vi.fn(async ({ payload }) => ({ ok: true, data: payload }));
+    const transport = vi.fn(async ({ payload }) => ({
+      ok: true,
+      data: payload,
+    }));
 
     const { result } = renderHook(() =>
       useHarness(transport, {
@@ -347,17 +368,24 @@ describe("useRhfAutosave", () => {
     );
 
     act(() => {
-      result.current.form.setValue("items", [{ id: "1", label: "One" }], { shouldDirty: true });
+      result.current.form.setValue("items", [{ id: "1", label: "One" }], {
+        shouldDirty: true,
+      });
     });
 
     await flushTimers();
 
     expect(transport).toHaveBeenCalledTimes(1);
-    expect(transport.mock.calls[0]?.[0].payload).toEqual({ items: [{ id: "1", label: "One" }] });
+    expect(transport.mock.calls[0]?.[0].payload).toEqual({
+      items: [{ id: "1", label: "One" }],
+    });
 
     const successLog = result.current.autosave
       .getMutationLog()
-      .find((entry) => entry.level === "success" && entry.message.includes("Saved mutation"));
+      .find(
+        (entry) =>
+          entry.level === "success" && entry.message.includes("Saved mutation"),
+      );
 
     expect(successLog?.payload).toEqual({ items: [{ id: "1", label: "One" }] });
   });
@@ -487,7 +515,9 @@ describe("useRhfAutosave", () => {
 
     expect(payloadOrder).toEqual(["First", "Third"]);
 
-    const mergeLog = result.current.autosave.getMutationLog().find((entry) => entry.merged?.source === "pending");
+    const mergeLog = result.current.autosave
+      .getMutationLog()
+      .find((entry) => entry.merged?.source === "pending");
     expect(mergeLog).toBeDefined();
     expect(mergeLog?.merged?.previous.payload).toEqual({ name: "Second" });
     expect(mergeLog?.merged?.next.payload).toEqual({ name: "Third" });
@@ -497,7 +527,10 @@ describe("useRhfAutosave", () => {
     vi.useRealTimers();
 
     const queueStore = createMemoryQueueStore();
-    const transport = vi.fn(async () => ({ ok: false, error: new Error("offline") }));
+    const transport = vi.fn(async () => ({
+      ok: false,
+      error: new Error("offline"),
+    }));
 
     const { result } = renderHook(() =>
       useHarness(transport, {
@@ -513,7 +546,9 @@ describe("useRhfAutosave", () => {
     );
 
     act(() => {
-      result.current.form.setValue("name", "First queued", { shouldDirty: true });
+      result.current.form.setValue("name", "First queued", {
+        shouldDirty: true,
+      });
     });
 
     await act(async () => {
@@ -521,7 +556,9 @@ describe("useRhfAutosave", () => {
     });
 
     act(() => {
-      result.current.form.setValue("name", "Latest queued", { shouldDirty: true });
+      result.current.form.setValue("name", "Latest queued", {
+        shouldDirty: true,
+      });
     });
 
     await act(async () => {
@@ -534,9 +571,13 @@ describe("useRhfAutosave", () => {
     expect(mergedRecord?.payload).toEqual({ name: "Latest queued" });
     expect(mergedRecord?.mergeKey).toBe("employment:emp-1");
 
-    const mergeLog = result.current.autosave.getMutationLog().find((entry) => entry.merged?.source === "queued");
+    const mergeLog = result.current.autosave
+      .getMutationLog()
+      .find((entry) => entry.merged?.source === "queued");
     expect(mergeLog).toBeDefined();
-    expect(mergeLog?.merged?.previous.payload).toEqual({ name: "First queued" });
+    expect(mergeLog?.merged?.previous.payload).toEqual({
+      name: "First queued",
+    });
     expect(mergeLog?.merged?.next.payload).toEqual({ name: "Latest queued" });
   });
 
@@ -582,7 +623,10 @@ describe("useRhfAutosave", () => {
       count: vi.fn(async () => records.length),
     };
 
-    const transport = vi.fn(async () => ({ ok: false, error: new Error("offline") }));
+    const transport = vi.fn(async () => ({
+      ok: false,
+      error: new Error("offline"),
+    }));
 
     const { result } = renderHook(() =>
       useHarness(transport, {
@@ -598,7 +642,9 @@ describe("useRhfAutosave", () => {
     );
 
     act(() => {
-      result.current.form.setValue("name", "First queued", { shouldDirty: true });
+      result.current.form.setValue("name", "First queued", {
+        shouldDirty: true,
+      });
     });
 
     await act(async () => {
@@ -606,7 +652,9 @@ describe("useRhfAutosave", () => {
     });
 
     act(() => {
-      result.current.form.setValue("name", "Latest queued", { shouldDirty: true });
+      result.current.form.setValue("name", "Latest queued", {
+        shouldDirty: true,
+      });
     });
 
     await act(async () => {
@@ -620,7 +668,9 @@ describe("useRhfAutosave", () => {
     expect(mergedQueueLogs).toHaveLength(0);
     expect(records).toHaveLength(1);
     expect(records[0]?.payload).toEqual({ name: "First queued" });
-    expect(result.current.autosave.getMutationLog()[0]?.message).toBe("Save failed");
+    expect(result.current.autosave.getMutationLog()[0]?.message).toBe(
+      "Save failed",
+    );
   });
 
   it("logs undo and redo mutations", async () => {
@@ -724,7 +774,11 @@ describe("useRhfAutosave", () => {
 
     const mergeLog = result.current.autosave
       .getMutationLog()
-      .find((entry) => entry.merged?.source === "pending" && entry.message.includes("Merged autosave request"));
+      .find(
+        (entry) =>
+          entry.merged?.source === "pending" &&
+          entry.message.includes("Merged autosave request"),
+      );
 
     expect(mergeLog).toBeDefined();
     expect(mergeLog?.entityId).toBe("profile");
@@ -799,7 +853,11 @@ describe("useRhfAutosave", () => {
 
     const pendingMergeLogs = result.current.autosave
       .getMutationLog()
-      .filter((entry) => entry.merged?.source === "pending" && entry.message.includes("Merged autosave request"));
+      .filter(
+        (entry) =>
+          entry.merged?.source === "pending" &&
+          entry.message.includes("Merged autosave request"),
+      );
 
     expect(pendingMergeLogs.length).toBeGreaterThanOrEqual(3);
 
@@ -832,9 +890,14 @@ describe("useRhfAutosave", () => {
     let formApi: ReturnType<typeof useForm<FormValues>> | undefined;
     let autosaveApi: ReturnType<typeof useRhfAutosave<FormValues>> | undefined;
 
-    const QueueCount = memo(function QueueCount(props: { autosave: ReturnType<typeof useRhfAutosave<FormValues>> }) {
+    const QueueCount = memo(function QueueCount(props: {
+      autosave: ReturnType<typeof useRhfAutosave<FormValues>>;
+    }) {
       selectorRenders();
-      const queuedCount = useAutosaveSelector(props.autosave, (state) => state.queuedCount);
+      const queuedCount = useAutosaveSelector(
+        props.autosave,
+        (state) => state.queuedCount,
+      );
       return <div data-testid="queued-count">{queuedCount}</div>;
     });
 
