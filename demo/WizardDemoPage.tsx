@@ -12,6 +12,20 @@ import { autosaveLogAdded } from "./autosaveLogsSlice";
 import type { AppDispatch } from "./store";
 import { useToast } from "./toast";
 
+function isLikelyHtmlMessage(value: string) {
+  const trimmed = value.trim();
+  return /<!doctype html/i.test(trimmed) || /<html[\s>]/i.test(trimmed);
+}
+
+function formatAutosaveErrorMessage(error: Error) {
+  const message = error.message.trim();
+  if (!message || isLikelyHtmlMessage(message)) {
+    return "Wizard autosave failed: demo mock API request did not resolve. Refresh and try again.";
+  }
+
+  return `Wizard autosave failed: ${message}`;
+}
+
 export function WizardDemoPage() {
   const dispatch = useDispatch<AppDispatch>();
   const params = useParams();
@@ -46,7 +60,7 @@ export function WizardDemoPage() {
     pushToastRef.current("Wizard changes saved", "success");
   }, []);
   const handleAutosaveError = useCallback((error: Error) => {
-    pushToastRef.current(`Wizard autosave failed: ${error.message}`, "error");
+    pushToastRef.current(formatAutosaveErrorMessage(error), "error");
   }, []);
   const handleAutosaveStateChange = useCallback(
     (state: Parameters<typeof upsertEntityState>[1]) => {

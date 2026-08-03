@@ -90,6 +90,12 @@ export type SaveEmploymentMutation = (
   payload: EmploymentPayload,
 ) => Promise<{ revision: string }>;
 
+const demoApiBasePath = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/api`;
+
+function demoApiPath(path: string) {
+  return `${demoApiBasePath}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 export const defaultEmployeeOnboardingValues: EmployeeOnboardingFormValues = {
   profile: {
     firstName: "Maya",
@@ -174,7 +180,7 @@ export function createEmployeeOnboardingTransport(
     {
       key: "profile",
       paths: ["profile", "address"],
-      transport: fetchTransport(`/api/employees/${employeeId}/profile`, {
+      transport: fetchTransport(demoApiPath(`/employees/${employeeId}/profile`), {
         method: "PATCH",
       }),
       payloadStrategy: "partition",
@@ -193,23 +199,17 @@ export function createEmployeeOnboardingTransport(
     {
       key: "benefits",
       paths: ["benefits", "dependents", "payroll", "acknowledgements"],
-      transport: fetchTransport(
-        `/api/employees/${employeeId}/benefits-enrollment`,
-        {
-          method: "PUT",
-        },
-      ),
+      transport: fetchTransport(demoApiPath(`/employees/${employeeId}/benefits-enrollment`), {
+        method: "PUT",
+      }),
       payloadStrategy: "partition",
     },
     {
       key: "emergencyContacts",
       paths: ["emergencyContacts"],
-      transport: fetchTransport(
-        `/api/employees/${employeeId}/emergency-contacts/bulk`,
-        {
-          method: "PUT",
-        },
-      ),
+      transport: fetchTransport(demoApiPath(`/employees/${employeeId}/emergency-contacts/bulk`), {
+        method: "PUT",
+      }),
       payloadStrategy: "partition",
     },
   ]);
