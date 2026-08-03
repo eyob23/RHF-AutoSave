@@ -2,6 +2,12 @@
 
 Reusable autosave primitives for large React Hook Form workflows with deep objects, dynamic arrays, multi-endpoint save pipelines, and optional IndexedDB-backed queue persistence.
 
+## About
+
+This repository includes a live, hosted demo of the autosave workflow on GitHub Pages:
+
+- [Dashboard](https://eyob23.github.io/RHF-AutoSave/dashboard)
+
 ## Highlights
 
 - Debounced autosave with React Hook Form subscriptions instead of render-time watchers
@@ -36,6 +42,12 @@ npm run demo
 ```
 
 Open `http://localhost:4173`.
+
+Live demo (GitHub Pages):
+
+- [Dashboard](https://eyob23.github.io/RHF-AutoSave/dashboard)
+- [Employee details](https://eyob23.github.io/RHF-AutoSave/employees/emp-4137)
+- [Onboarding wizard](https://eyob23.github.io/RHF-AutoSave/employees/emp-4137/onboarding?tab=profile)
 
 The demo is also prepared for static hosting on GitHub Pages. The production build keeps the MSW-backed mock API enabled and emits a `404.html` SPA fallback for deep links.
 

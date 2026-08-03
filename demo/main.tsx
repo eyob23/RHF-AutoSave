@@ -43,7 +43,39 @@ function GlobalAutosaveQueueBootstrapper(props: { children: React.ReactNode }) {
   return <>{props.children}</>;
 }
 
+function getRouterBaseName(baseUrl: string) {
+  if (baseUrl === "/") {
+    return "/";
+  }
+
+  return baseUrl.replace(/\/$/, "");
+}
+
+function normalizeDuplicatedRepoPath(baseUrl: string) {
+  if (typeof window === "undefined" || baseUrl === "/") {
+    return;
+  }
+
+  const normalizedBase = baseUrl.replace(/\/$/, "");
+  const doubledBase = `${normalizedBase}${normalizedBase}`;
+  if (
+    window.location.pathname !== doubledBase &&
+    !window.location.pathname.startsWith(`${doubledBase}/`)
+  ) {
+    return;
+  }
+
+  const normalizedPathname = window.location.pathname.slice(normalizedBase.length);
+  window.history.replaceState(
+    window.history.state,
+    "",
+    `${normalizedPathname}${window.location.search}${window.location.hash}`,
+  );
+}
+
 async function bootstrap() {
+  normalizeDuplicatedRepoPath(import.meta.env.BASE_URL);
+
   if (typeof window !== "undefined") {
     const { worker } = await import("./mocks/browser");
     await worker.start({
@@ -60,7 +92,7 @@ async function bootstrap() {
         <GlobalAutosaveStateProvider>
           <GlobalAutosaveQueueBootstrapper>
             <ToastProvider>
-              <BrowserRouter basename={import.meta.env.BASE_URL}>
+              <BrowserRouter basename={getRouterBaseName(import.meta.env.BASE_URL)}>
                 <App />
               </BrowserRouter>
             </ToastProvider>
