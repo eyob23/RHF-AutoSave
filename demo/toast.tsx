@@ -3,16 +3,15 @@ import {
   useCallback,
   useContext,
   useMemo,
-  useState,
 } from "react";
+import {
+  ToastContainer,
+  toast,
+  type ToastOptions,
+} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type ToastLevel = "success" | "error" | "info";
-
-type ToastRecord = {
-  id: string;
-  message: string;
-  level: ToastLevel;
-};
 
 type ToastContextValue = {
   pushToast: (message: string, level?: ToastLevel) => void;
@@ -20,28 +19,30 @@ type ToastContextValue = {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
-function createToastId() {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const TOAST_OPTIONS: ToastOptions = {
+  autoClose: 3200,
+  closeOnClick: true,
+  draggable: true,
+  pauseOnHover: true,
+};
+
+function showToast(message: string, level: ToastLevel) {
+  switch (level) {
+    case "success":
+      toast.success(message, TOAST_OPTIONS);
+      return;
+    case "error":
+      toast.error(message, TOAST_OPTIONS);
+      return;
+    default:
+      toast.info(message, TOAST_OPTIONS);
+  }
 }
 
 export function ToastProvider(props: { children: React.ReactNode }) {
-  const [toasts, setToasts] = useState<ToastRecord[]>([]);
-
   const pushToast = useCallback(
     (message: string, level: ToastLevel = "info") => {
-      const nextToast: ToastRecord = {
-        id: createToastId(),
-        message,
-        level,
-      };
-
-      setToasts((current) => [...current, nextToast]);
-
-      window.setTimeout(() => {
-        setToasts((current) =>
-          current.filter((toast) => toast.id !== nextToast.id),
-        );
-      }, 3200);
+      showToast(message, level);
     },
     [],
   );
@@ -51,13 +52,12 @@ export function ToastProvider(props: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {props.children}
-      <aside className="toast-stack" aria-live="polite" aria-atomic="false">
-        {toasts.map((toast) => (
-          <div key={toast.id} className={`toast toast-${toast.level}`}>
-            {toast.message}
-          </div>
-        ))}
-      </aside>
+      <ToastContainer
+        position="top-right"
+        newestOnTop
+        theme="colored"
+        aria-label="Notifications"
+      />
     </ToastContext.Provider>
   );
 }
