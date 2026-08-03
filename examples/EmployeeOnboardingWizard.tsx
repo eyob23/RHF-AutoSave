@@ -534,8 +534,18 @@ function WizardAutosaveBlocker(props: {
     props.autosave,
     (state) => state.hasPendingChanges,
   );
+  const isSaving = useAutosaveSelector(props.autosave, (state) => state.isSaving);
+  const queuedCount = useAutosaveSelector(
+    props.autosave,
+    (state) => state.queuedCount,
+  );
+  const phase = useAutosaveSelector(props.autosave, (state) => state.phase);
+
+  const shouldWarnOnLeave =
+    hasPendingChanges || isSaving || queuedCount > 0 || phase === "error";
+
   useAutosaveBlocker(
-    hasPendingChanges,
+    shouldWarnOnLeave,
     "You have unsaved onboarding changes. Select Cancel to stay and continue editing, or OK to leave without saving.",
   );
 

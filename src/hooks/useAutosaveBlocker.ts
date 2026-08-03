@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
 import {
-  useBeforeUnload as useRouterBeforeUnload,
   useLocation,
   useNavigate,
 } from "react-router-dom";
@@ -33,15 +32,22 @@ export function useAutosaveBlocker(
     lastConfirmedPathRef.current = locationToPathname(location);
   }, [location]);
 
-  useRouterBeforeUnload(
-    ({ preventDefault }) => {
-      if (!when) {
-        return;
-      }
-      preventDefault();
-    },
-    { capture: true },
-  );
+  useEffect(() => {
+    if (!when) {
+      return;
+    }
+
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = message;
+      return message;
+    };
+
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+    };
+  }, [when, message]);
 
   useEffect(() => {
     if (!when) {
