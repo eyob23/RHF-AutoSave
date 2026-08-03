@@ -1,14 +1,5 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-} from "react";
-import {
-  ToastContainer,
-  toast,
-  type ToastOptions,
-} from "react-toastify";
+import { createContext, useCallback, useContext, useMemo } from "react";
+import { ToastContainer, toast, type ToastOptions } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 type ToastLevel = "success" | "error" | "info";
