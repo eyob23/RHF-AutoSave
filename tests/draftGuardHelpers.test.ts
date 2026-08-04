@@ -8,11 +8,19 @@ import {
 describe("draft guard helpers", () => {
   it("uses a shared leave decision helper", () => {
     expect(
-      shouldWarnOnLeave({ shouldProtect: true, message: "leave", snapshot: null }),
+      shouldWarnOnLeave({
+        shouldProtect: true,
+        message: "leave",
+        snapshot: null,
+      }),
     ).toBe(true);
 
     expect(
-      shouldWarnOnLeave({ shouldProtect: false, message: "leave", snapshot: null }),
+      shouldWarnOnLeave({
+        shouldProtect: false,
+        message: "leave",
+        snapshot: null,
+      }),
     ).toBe(false);
   });
 

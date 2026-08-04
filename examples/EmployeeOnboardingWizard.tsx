@@ -534,7 +534,10 @@ function WizardAutosaveBlocker(props: {
     props.autosave,
     (state) => state.hasPendingChanges,
   );
-  const isSaving = useAutosaveSelector(props.autosave, (state) => state.isSaving);
+  const isSaving = useAutosaveSelector(
+    props.autosave,
+    (state) => state.isSaving,
+  );
   const queuedCount = useAutosaveSelector(
     props.autosave,
     (state) => state.queuedCount,

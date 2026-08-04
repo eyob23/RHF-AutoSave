@@ -15,10 +15,17 @@ function shouldWarnOnLeaveDecision<TValues>(
 
 export const shouldWarnOnLeave = shouldWarnOnLeaveDecision;
 
-export function normalizeAutosaveError(error: unknown, fallbackMessage: string) {
+export function normalizeAutosaveError(
+  error: unknown,
+  fallbackMessage: string,
+) {
   if (error instanceof Error) {
     const message = error.message?.trim();
-    if (!message || /<!doctype html/i.test(message) || /<html[\s>]/i.test(message)) {
+    if (
+      !message ||
+      /<!doctype html/i.test(message) ||
+      /<html[\s>]/i.test(message)
+    ) {
       return fallbackMessage;
     }
 
@@ -301,8 +308,10 @@ export function createDraftGuardian<TValues>(
   };
 }
 
-export interface UseDraftGuardOptions<TValues>
-  extends Omit<DraftGuardianOptions<TValues>, "getSnapshot" | "restoreSnapshot"> {
+export interface UseDraftGuardOptions<TValues> extends Omit<
+  DraftGuardianOptions<TValues>,
+  "getSnapshot" | "restoreSnapshot"
+> {
   getSnapshot?: () => TValues;
   restoreSnapshot?: (snapshot: TValues) => void;
 }
@@ -325,14 +334,16 @@ export function useDraftGuard<TValues>(
   return controller;
 }
 
-export interface UseAutosaveFlowOptions<TValues>
-  extends UseDraftGuardOptions<TValues> {
+export interface UseAutosaveFlowOptions<
+  TValues,
+> extends UseDraftGuardOptions<TValues> {
   onSaved?: () => void;
   onError?: (message: string) => void;
 }
 
-export interface UseAutosaveFlowResult<TValues>
-  extends DraftGuardianController<TValues> {
+export interface UseAutosaveFlowResult<
+  TValues,
+> extends DraftGuardianController<TValues> {
   reportSaved: () => void;
   reportError: (error: unknown, fallbackMessage: string) => void;
   shouldWarnOnLeave: () => boolean;

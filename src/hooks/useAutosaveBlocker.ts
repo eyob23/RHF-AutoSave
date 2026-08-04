@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useRef } from "react";
-import {
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type AutosaveBlockerState = "unblocked" | "blocked";
 

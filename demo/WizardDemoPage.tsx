@@ -69,9 +69,10 @@ export function WizardDemoPage() {
       reset: () => undefined,
     },
     getSnapshot: () => ({ employeeId, values: currentData?.values ?? null }),
-    storage: createLocalStorageDraftStorage<{ employeeId: string; values: unknown | null }>(
-      `rhf-autosave-draft:${employeeId}`,
-    ),
+    storage: createLocalStorageDraftStorage<{
+      employeeId: string;
+      values: unknown | null;
+    }>(`rhf-autosave-draft:${employeeId}`),
     shouldProtect: () => hasUnsavedChanges,
     onLeave: () => true,
     message:

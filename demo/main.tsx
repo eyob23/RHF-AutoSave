@@ -65,7 +65,9 @@ function normalizeDuplicatedRepoPath(baseUrl: string) {
     return;
   }
 
-  const normalizedPathname = window.location.pathname.slice(normalizedBase.length);
+  const normalizedPathname = window.location.pathname.slice(
+    normalizedBase.length,
+  );
   window.history.replaceState(
     window.history.state,
     "",
@@ -92,7 +94,9 @@ async function bootstrap() {
         <GlobalAutosaveStateProvider>
           <GlobalAutosaveQueueBootstrapper>
             <ToastProvider>
-              <BrowserRouter basename={getRouterBaseName(import.meta.env.BASE_URL)}>
+              <BrowserRouter
+                basename={getRouterBaseName(import.meta.env.BASE_URL)}
+              >
                 <App />
               </BrowserRouter>
             </ToastProvider>
