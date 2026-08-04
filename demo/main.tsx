@@ -3,9 +3,9 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import {
-  GlobalAutosaveStateProvider,
+  AutosaveRuntimeProvider,
   createIndexedDbQueueStore,
-  useGlobalAutosaveQueueBootstrap,
+  resolveEntityKeyFromMergeKey,
 } from "../src";
 import type { EmployeeOnboardingFormValues } from "../examples/employeeOnboardingModel";
 import App from "./App";
@@ -17,31 +17,6 @@ const bootQueueStore = createIndexedDbQueueStore<EmployeeOnboardingFormValues>({
   databaseName: "employee-onboarding-autosave",
   storeName: "pending-saves",
 });
-
-function resolveEntityKeyFromMergeKey(mergeKey: string | undefined) {
-  if (!mergeKey) {
-    return null;
-  }
-
-  const separatorIndex = mergeKey.lastIndexOf(":");
-  if (separatorIndex < 0 || separatorIndex === mergeKey.length - 1) {
-    return mergeKey;
-  }
-
-  return mergeKey.slice(separatorIndex + 1);
-}
-
-function GlobalAutosaveQueueBootstrapper(props: { children: React.ReactNode }) {
-  useGlobalAutosaveQueueBootstrap([
-    {
-      store: bootQueueStore,
-      resolveEntityKey: (record) =>
-        resolveEntityKeyFromMergeKey(record.mergeKey),
-    },
-  ]);
-
-  return <>{props.children}</>;
-}
 
 function getRouterBaseName(baseUrl: string) {
   if (baseUrl === "/") {
@@ -91,17 +66,21 @@ async function bootstrap() {
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
       <Provider store={store}>
-        <GlobalAutosaveStateProvider>
-          <GlobalAutosaveQueueBootstrapper>
-            <ToastProvider>
-              <BrowserRouter
-                basename={getRouterBaseName(import.meta.env.BASE_URL)}
-              >
-                <App />
-              </BrowserRouter>
-            </ToastProvider>
-          </GlobalAutosaveQueueBootstrapper>
-        </GlobalAutosaveStateProvider>
+        <AutosaveRuntimeProvider
+          queueSources={[
+            {
+              store: bootQueueStore,
+              resolveEntityKey: (record) =>
+                resolveEntityKeyFromMergeKey(record.mergeKey),
+            },
+          ]}
+        >
+          <ToastProvider>
+            <BrowserRouter basename={getRouterBaseName(import.meta.env.BASE_URL)}>
+              <App />
+            </BrowserRouter>
+          </ToastProvider>
+        </AutosaveRuntimeProvider>
       </Provider>
     </React.StrictMode>,
   );

@@ -46,7 +46,7 @@ export interface GlobalAutosaveQueueBootstrapSource<
 }
 
 export interface GlobalAutosaveQueueBootstrapOptions {
-  clearExisting?: boolean;
+  clearExisting?: boolean | undefined;
 }
 
 interface GlobalAutosaveStateContextValue {
@@ -319,6 +319,55 @@ export function GlobalAutosaveStateProvider(props: { children: ReactNode }) {
     <GlobalAutosaveStateContext.Provider value={value}>
       {props.children}
     </GlobalAutosaveStateContext.Provider>
+  );
+}
+
+export function resolveEntityKeyFromMergeKey(
+  mergeKey: string | undefined | { mergeKey?: string | null },
+) {
+  const resolvedMergeKey =
+    typeof mergeKey === "string" ? mergeKey : mergeKey?.mergeKey;
+
+  if (!resolvedMergeKey) {
+    return null;
+  }
+
+  const separatorIndex = resolvedMergeKey.lastIndexOf(":");
+  if (separatorIndex < 0 || separatorIndex === resolvedMergeKey.length - 1) {
+    return resolvedMergeKey;
+  }
+
+  return resolvedMergeKey.slice(separatorIndex + 1);
+}
+
+export interface AutosaveRuntimeProviderProps {
+  children: ReactNode;
+  queueSources: GlobalAutosaveQueueBootstrapSource[];
+  clearExisting?: boolean | undefined;
+}
+
+function AutosaveRuntimeBootstrap(props: {
+  children: ReactNode;
+  queueSources: GlobalAutosaveQueueBootstrapSource[];
+  clearExisting?: boolean | undefined;
+}) {
+  useGlobalAutosaveQueueBootstrap(props.queueSources, {
+    clearExisting: props.clearExisting,
+  });
+
+  return <>{props.children}</>;
+}
+
+export function AutosaveRuntimeProvider(props: AutosaveRuntimeProviderProps) {
+  return (
+    <GlobalAutosaveStateProvider>
+      <AutosaveRuntimeBootstrap
+        queueSources={props.queueSources}
+        clearExisting={props.clearExisting}
+      >
+        {props.children}
+      </AutosaveRuntimeBootstrap>
+    </GlobalAutosaveStateProvider>
   );
 }
 

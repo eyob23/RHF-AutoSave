@@ -56,11 +56,14 @@ export type {
   UseDraftGuardOptions,
 } from "./hooks/draftGuardian";
 export {
+  AutosaveRuntimeProvider,
   GlobalAutosaveStateProvider,
+  resolveEntityKeyFromMergeKey,
   useGlobalAutosaveQueueBootstrap,
   useGlobalAutosaveQuery,
   useGlobalAutosaveRegistry,
 } from "./hooks/useGlobalAutosaveState";
+export type { AutosaveRuntimeProviderProps } from "./hooks/useGlobalAutosaveState";
 export {
   autosaveLogAdded,
   autosaveLogsCleared,
