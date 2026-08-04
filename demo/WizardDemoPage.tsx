@@ -2,7 +2,12 @@ import { Link, useParams } from "react-router-dom";
 import { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import type { AutosaveMutationLogEntry } from "../src";
-import { useGlobalAutosaveQuery, useGlobalAutosaveRegistry } from "../src";
+import {
+  createLocalStorageDraftStorage,
+  useDraftGuard,
+  useGlobalAutosaveQuery,
+  useGlobalAutosaveRegistry,
+} from "../src";
 import { EmployeeOnboardingWizard } from "../examples/EmployeeOnboardingWizard";
 import {
   useGetEmployeeOnboardingQuery,
@@ -39,6 +44,12 @@ export function WizardDemoPage() {
   const pushToastRef = useRef(pushToast);
   const upsertEntityStateRef = useRef(upsertEntityState);
 
+  const globalSummary = useGlobalAutosaveQuery((summary) => ({
+    hasUnsavedChanges: summary.hasUnsavedChanges,
+    unsavedEmployeeCount: summary.unsavedEntityKeys.length,
+    queuedMutationCount: summary.queuedMutationCount,
+  }));
+
   useEffect(() => {
     updateEmploymentRef.current = updateEmployment;
   }, [updateEmployment]);
@@ -51,6 +62,22 @@ export function WizardDemoPage() {
     upsertEntityStateRef.current = upsertEntityState;
   }, [upsertEntityState]);
 
+  const hasUnsavedChanges = globalSummary.hasUnsavedChanges;
+  const draftGuard = useDraftGuard({
+    form: {
+      getValues: () => ({ employeeId, values: currentData?.values ?? null }),
+      reset: () => undefined,
+    },
+    getSnapshot: () => ({ employeeId, values: currentData?.values ?? null }),
+    storage: createLocalStorageDraftStorage<{ employeeId: string; values: unknown | null }>(
+      `rhf-autosave-draft:${employeeId}`,
+    ),
+    shouldProtect: () => hasUnsavedChanges,
+    onLeave: () => true,
+    message:
+      "You have unsaved onboarding changes. Select Cancel to stay and continue editing, or OK to leave without saving.",
+  });
+
   const saveEmploymentMutation = useCallback(
     (payload: Parameters<typeof updateEmployment>[0]["payload"]) =>
       updateEmploymentRef.current({ employeeId, payload }).unwrap(),
@@ -58,7 +85,8 @@ export function WizardDemoPage() {
   );
   const handleAutosaveSaved = useCallback(() => {
     pushToastRef.current("Wizard changes saved", "success");
-  }, []);
+    draftGuard.saveDraft();
+  }, [draftGuard]);
   const handleAutosaveError = useCallback((error: Error) => {
     pushToastRef.current(formatAutosaveErrorMessage(error), "error");
   }, []);
@@ -74,12 +102,6 @@ export function WizardDemoPage() {
     },
     [dispatch],
   );
-  const globalSummary = useGlobalAutosaveQuery((summary) => ({
-    hasUnsavedChanges: summary.hasUnsavedChanges,
-    unsavedEmployeeCount: summary.unsavedEntityKeys.length,
-    queuedMutationCount: summary.queuedMutationCount,
-  }));
-
   return (
     <main className="page-shell">
       <section className="hero-card">

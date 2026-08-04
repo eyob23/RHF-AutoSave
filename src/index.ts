@@ -34,11 +34,36 @@ export {
 } from "./components/autosaveHelpers";
 export { useAutosaveBlocker } from "./hooks/useAutosaveBlocker";
 export {
+  createDraftGuardian,
+  createDraftSnapshot,
+  createLocalStorageDraftStorage,
+  normalizeAutosaveError,
+  shouldWarnOnLeave,
+  useAutosaveFeedback,
+  useAutosaveFlow,
+  useDraftGuard,
+} from "./hooks/draftGuardian";
+export type {
+  AutosaveFeedbackHandlers,
+  DraftGuardDecisionContext,
+  DraftGuardianController,
+  DraftGuardianFormAdapter,
+  DraftGuardianOptions,
+  DraftGuardianStorage,
+  UseDraftGuardOptions,
+} from "./hooks/draftGuardian";
+export {
   GlobalAutosaveStateProvider,
   useGlobalAutosaveQueueBootstrap,
   useGlobalAutosaveQuery,
   useGlobalAutosaveRegistry,
 } from "./hooks/useGlobalAutosaveState";
+export {
+  autosaveLogAdded,
+  autosaveLogsCleared,
+  autosaveLogsReducer,
+} from "./hooks/autosaveLogs";
+export type { AutosaveLogsState } from "./hooks/autosaveLogs";
 export type {
   GlobalAutosaveEntitySnapshot,
   GlobalAutosaveQueueBootstrapOptions,
