@@ -41,6 +41,7 @@ export {
   shouldWarnOnLeave,
   useAutosaveFeedback,
   useAutosaveFlow,
+  useAutosaveWorkflow,
   useDraftGuard,
 } from "./hooks/draftGuardian";
 export type {
@@ -50,6 +51,8 @@ export type {
   DraftGuardianFormAdapter,
   DraftGuardianOptions,
   DraftGuardianStorage,
+  UseAutosaveWorkflowOptions,
+  UseAutosaveWorkflowResult,
   UseDraftGuardOptions,
 } from "./hooks/draftGuardian";
 export {

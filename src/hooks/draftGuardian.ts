@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { cloneDeep } from "../utils/deep";
 
 export interface DraftGuardDecisionContext<TValues> {
@@ -337,8 +337,8 @@ export function useDraftGuard<TValues>(
 export interface UseAutosaveFlowOptions<
   TValues,
 > extends UseDraftGuardOptions<TValues> {
-  onSaved?: () => void;
-  onError?: (message: string) => void;
+  onSaved?: (() => void) | undefined;
+  onError?: ((message: string) => void) | undefined;
 }
 
 export interface UseAutosaveFlowResult<
@@ -370,5 +370,91 @@ export function useAutosaveFlow<TValues>(
     reportSaved: feedback.reportSaved,
     reportError: feedback.reportError,
     shouldWarnOnLeave,
+  };
+}
+
+export interface UseAutosaveWorkflowOptions<
+  TValues,
+  TPayload = unknown,
+> extends UseDraftGuardOptions<TValues> {
+  draftKey?: string;
+  fallbackMessage?: string;
+  save: (payload: TPayload) => Promise<unknown> | unknown;
+  onSaved?: () => void;
+  onError?: (message: string) => void;
+}
+
+export interface UseAutosaveWorkflowResult<
+  TValues,
+  TPayload = unknown,
+> extends UseAutosaveFlowResult<TValues> {
+  saveAndTrack: (payload: TPayload) => Promise<unknown>;
+  handleSuccessfulSave: () => void;
+  handleError: (error: unknown) => void;
+}
+
+export function useAutosaveWorkflow<TValues, TPayload = unknown>(
+  options: UseAutosaveWorkflowOptions<TValues, TPayload>,
+): UseAutosaveWorkflowResult<TValues, TPayload> {
+  const {
+    save,
+    draftKey,
+    fallbackMessage = "Autosave failed. Please try again.",
+    storage,
+    onSaved,
+    onError,
+    ...draftOptions
+  } = options;
+
+  const workflowStorage = useMemo(() => {
+    if (storage) {
+      return storage;
+    }
+
+    if (!draftKey) {
+      return undefined;
+    }
+
+    return createLocalStorageDraftStorage<TValues>(draftKey);
+  }, [draftKey, storage]);
+
+  const flow = useAutosaveFlow<TValues>({
+    ...draftOptions,
+    ...(workflowStorage ? { storage: workflowStorage } : {}),
+    onSaved,
+    onError,
+  });
+
+  const handleSuccessfulSave = useCallback(() => {
+    flow.saveDraft();
+    flow.reportSaved();
+  }, [flow]);
+
+  const handleError = useCallback(
+    (error: unknown) => {
+      flow.reportError(error, fallbackMessage);
+    },
+    [fallbackMessage, flow],
+  );
+
+  const saveAndTrack = useCallback(
+    async (payload: TPayload) => {
+      try {
+        const result = await save(payload);
+        handleSuccessfulSave();
+        return result;
+      } catch (error) {
+        handleError(error);
+        throw error;
+      }
+    },
+    [handleError, handleSuccessfulSave, save],
+  );
+
+  return {
+    ...flow,
+    saveAndTrack,
+    handleSuccessfulSave,
+    handleError,
   };
 }

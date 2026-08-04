@@ -3,8 +3,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import type { AutosaveMutationLogEntry } from "../src";
 import {
-  createLocalStorageDraftStorage,
-  useDraftGuard,
+  useAutosaveWorkflow,
   useGlobalAutosaveQuery,
   useGlobalAutosaveRegistry,
 } from "../src";
@@ -63,20 +62,29 @@ export function WizardDemoPage() {
   }, [upsertEntityState]);
 
   const hasUnsavedChanges = globalSummary.hasUnsavedChanges;
-  const draftGuard = useDraftGuard({
+  const autosaveWorkflow = useAutosaveWorkflow<{
+    employeeId: string;
+    values: unknown | null;
+  }>({
     form: {
       getValues: () => ({ employeeId, values: currentData?.values ?? null }),
       reset: () => undefined,
     },
     getSnapshot: () => ({ employeeId, values: currentData?.values ?? null }),
-    storage: createLocalStorageDraftStorage<{
-      employeeId: string;
-      values: unknown | null;
-    }>(`rhf-autosave-draft:${employeeId}`),
+    draftKey: `rhf-autosave-draft:${employeeId}`,
+    save: async () => undefined,
     shouldProtect: () => hasUnsavedChanges,
     onLeave: () => true,
     message:
       "You have unsaved onboarding changes. Select Cancel to stay and continue editing, or OK to leave without saving.",
+    fallbackMessage:
+      "Wizard autosave failed: demo mock API request did not resolve. Refresh and try again.",
+    onSaved: () => {
+      pushToastRef.current("Wizard changes saved", "success");
+    },
+    onError: (message) => {
+      pushToastRef.current(message, "error");
+    },
   });
 
   const saveEmploymentMutation = useCallback(
@@ -85,12 +93,14 @@ export function WizardDemoPage() {
     [employeeId],
   );
   const handleAutosaveSaved = useCallback(() => {
-    pushToastRef.current("Wizard changes saved", "success");
-    draftGuard.saveDraft();
-  }, [draftGuard]);
-  const handleAutosaveError = useCallback((error: Error) => {
-    pushToastRef.current(formatAutosaveErrorMessage(error), "error");
-  }, []);
+    autosaveWorkflow.handleSuccessfulSave();
+  }, [autosaveWorkflow]);
+  const handleAutosaveError = useCallback(
+    (error: Error) => {
+      autosaveWorkflow.handleError(error);
+    },
+    [autosaveWorkflow],
+  );
   const handleAutosaveStateChange = useCallback(
     (state: Parameters<typeof upsertEntityState>[1]) => {
       upsertEntityStateRef.current(employeeId, state);
